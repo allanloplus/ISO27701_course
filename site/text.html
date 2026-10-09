@@ -20,7 +20,7 @@
 @media(min-width:980px){.side details summary{display:none}}
 .toc{font-size:14px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
 .toc a{padding:4px 10px;font-size:13px;color:var(--muted)}
-article{min-width:0}
+article,.side{min-width:0}
 article h1{font-size:clamp(22px,3.4vw,30px);line-height:1.35;margin:.2em 0}
 article h2{font-size:21px;margin:1.8em 0 .6em;padding-top:.4em;border-top:2px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .kind{font-size:12px;padding:3px 10px;border-radius:99px;font-weight:700}
@@ -109,7 +109,7 @@ async function show(id){
   let c;
   try { c = await Course.loadChapter(id); } catch(e){ art.innerHTML = '<div class="loading">章節載入失敗，請重新整理。</div>'; return; }
   const secs = (c.text && c.text.sections) || [];
-  let html = `<span class="pill">第 ${c.no} 章${(c.clauses||[]).length?"｜條款 "+esc(c.clauses.join("、")):""}｜約 ${c.minutes||"-"} 分鐘</span><h1>${esc(c.title)}</h1>`;
+  let html = `<span class="pill">單元 ${c.no}${(c.clauses||[]).length?"｜條款 "+esc(c.clauses.join("、")):""}｜約 ${c.minutes||"-"} 分鐘</span><h1>${esc(c.title)}</h1>`;
   if (c.objectives && c.objectives.length) html += `<div class="obj"><b>🎯 學習目標</b><ul>${c.objectives.map(o=>`<li>${fmt(o)}</li>`).join("")}</ul></div>`;
   html += secs.map((s,i)=>`<h2 id="s${i}"><span class="kind k-${s.kind||"intro"}">${KIND[s.kind]||""}</span>${esc(s.h)}</h2>${(s.blocks||[]).map(renderBlock).join("")}`).join("");
   if (c.keypoints && c.keypoints.length) html += `<div class="kp"><b>📌 本章重點</b><ul>${c.keypoints.map(k=>`<li>${fmt(k)}</li>`).join("")}</ul></div>`;

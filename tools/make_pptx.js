@@ -93,9 +93,11 @@ function bubble(slide, text, x, y, w, h, who) {
 const teach = chapters.filter((c) => (c.slides || []).length);
 const totalSlides = teach.reduce((a, c) => a + c.slides.length + 1, 0);
 const TEACH_MIN = 170; // 180 分鐘扣除 10 分鐘休息
+// 各章建議分鐘數（重點放在第 6 章規劃、附錄 A 控制措施與稽核實務）
+const MIN = { 0: 5, 1: 8, 2: 10, 3: 8, 4: 8, 5: 15, 6: 8, 7: 10, 8: 10, 9: 12, 10: 12, 11: 12, 12: 12, 13: 15, 14: 5, 15: 15, 16: 5 };
 let acc = 0;
 const plan = teach.map((c) => {
-  const m = Math.max(5, Math.round(((c.slides.length + 1) / totalSlides) * TEACH_MIN / 5) * 5);
+  const m = MIN[c.no] || Math.max(5, Math.round(((c.slides.length + 1) / totalSlides) * TEACH_MIN / 5) * 5);
   acc += m; return { c, m };
 });
 {
@@ -105,11 +107,15 @@ const plan = teach.map((c) => {
   [plan.slice(0, half), plan.slice(half)].forEach((col, ci) => {
     const x = 0.6 + ci * 6.15;
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y: 1.45, w: 5.95, h: 5.35, rectRadius: 0.12, fill: { color: HEX.lt2 }, line: { color: HEX.lt2 }, objectName: `agenda-card-${ci}` });
-    const rows = col.map(({ c, m }) => [
-      { text: String(c.no), options: { bold: true, color: HEX.accent4, align: "center" } },
-      { text: c.title, options: { color: HEX.dk1 } },
-      { text: `${m} 分`, options: { color: HEX.accent5, align: "right" } },
-    ]);
+    const rows = [];
+    col.forEach(({ c, m }) => {
+      rows.push([
+        { text: String(c.no), options: { bold: true, color: HEX.accent4, align: "center" } },
+        { text: c.title, options: { color: HEX.dk1 } },
+        { text: `${m} 分`, options: { color: HEX.accent5, align: "right" } },
+      ]);
+      if (c.no === 8) rows.push([{ text: "☕", options: { align: "center" } }, { text: "中場休息", options: { bold: true, color: HEX.accent2 } }, { text: "10 分", options: { color: HEX.accent2, align: "right" } }]);
+    });
     s.addTable(rows, { x: x + 0.15, y: 1.6, w: 5.65, colW: [0.45, 4.3, 0.9], fontSize: 14, fontFace: THEME.bodyFontFace, rowH: 0.5, border: { type: "none" }, valign: "middle", margin: [2, 4, 2, 4] });
   });
   s.addNotes(`3 小時實體課建議配置：教學約 ${TEACH_MIN} 分鐘＋中場休息 10 分鐘（建議排在第 8 章之後）。各章分鐘數依簡報張數估算，可依學員背景調整；例如學員已熟悉 ISO 27001，可縮短第 6、7 章，把時間留給第 9～13 章附錄 A 控制措施與第 15 章稽核實務。線上教材與互動影音內容比簡報更完整，請學員課後補充。`);
@@ -126,32 +132,33 @@ for (const { c, m } of plan) {
   pres.addSection({ title: sec });
   // 章節分隔頁
   const d = pres.addSlide({ masterName: "SECTION", sectionTitle: sec });
-  d.addText(`CHAPTER ${String(c.no).padStart(2, "0")}`, { x: 0.8, y: 1.6, w: 5, h: 0.6, fontSize: 20, bold: true, color: HEX.accent3, isTextBox: true, margin: 0, charSpacing: 4 });
+  d.addText(`UNIT ${String(c.no).padStart(2, "0")}`, { x: 0.8, y: 1.6, w: 5, h: 0.6, fontSize: 20, bold: true, color: HEX.accent3, isTextBox: true, margin: 0, charSpacing: 4 });
   d.addText(c.title, { placeholder: "title" });
-  const sub = [(c.clauses || []).length ? `條款：${c.clauses.join("、")}` : "", `建議時間：約 ${m} 分鐘`].filter(Boolean).join("　｜　");
+  const cl = c.clauses || [];
+  const sub = [cl.length ? `條款：${cl.length > 6 ? cl.slice(0, 4).join("、") + ` 等 ${cl.length} 項` : cl.join("、")}` : "", `建議時間：約 ${m} 分鐘`].filter(Boolean).join("　｜　");
   d.addText(sub, { placeholder: "body" });
   portrait(d, k % 2 ? "arale" : "allan", 9.9, 0.9, 2.4, null);
   if (c.keypoints && c.keypoints[0]) bubble(d, c.keypoints[0], 8.9, 5.0, 4.0, 1.5, k % 2 ? "arale" : "allan");
-  d.addNotes(`【第 ${c.no} 章 ${c.title}】\n學習目標：\n` + (c.objectives || []).map((o, i) => `${i + 1}. ${o}`).join("\n") + `\n\n本章重點：\n` + (c.keypoints || []).map((o) => `・${o}`).join("\n"));
+  d.addNotes(`【單元 ${c.no}｜${c.title}】\n學習目標：\n` + (c.objectives || []).map((o, i) => `${i + 1}. ${o}`).join("\n") + `\n\n本章重點：\n` + (c.keypoints || []).map((o) => `・${o}`).join("\n"));
 
   c.slides.forEach((sl, si) => {
     const s = pres.addSlide({ masterName: "CONTENT", sectionTitle: sec });
     s.addText(sl.title, { placeholder: "title" });
     const bl = (sl.bullets || []).slice(0, 7);
     const shortish = bl.length >= 3 && bl.length <= 6 && bl.every((b) => b.length <= 42);
-    const who = k % 2 ? "arale" : "allan";
+    const who = (si + c.no) % 2 ? "arale" : "allan";
     k++;
     if (shortish && si % 2 === 1) {
       // 卡片格狀版面
       const cols = 2, rows = Math.ceil(bl.length / cols);
       const gw = 12.1, gh = 5.3, gap = 0.3;
-      const cw = (gw - gap) / cols, chh = Math.min(1.6, (gh - gap * (rows - 1)) / rows);
+      const cw = (gw - gap) / cols, chh = Math.min(2.2, (gh - gap * (rows - 1)) / rows);
       bl.forEach((b, i) => {
         const x = 0.6 + (i % cols) * (cw + gap), y = 1.5 + Math.floor(i / cols) * (chh + gap);
         s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x, y, w: cw, h: chh, rectRadius: 0.12, fill: { color: HEX.lt2 }, line: { color: HEX.lt2 }, objectName: `card-${i}` });
         s.addShape(pres.shapes.OVAL, { x: x + 0.25, y: y + chh / 2 - 0.3, w: 0.6, h: 0.6, fill: { color: [HEX.accent1, HEX.accent4, HEX.accent2, HEX.accent3][i % 4] }, line: { color: HEX.lt1, width: 0 }, objectName: `num-${i}` });
         s.addText(String(i + 1), { x: x + 0.25, y: y + chh / 2 - 0.3, w: 0.6, h: 0.6, fontSize: 18, bold: true, color: HEX.lt1, align: "center", valign: "middle", isTextBox: true, margin: 0 });
-        s.addText(b, { x: x + 1.05, y: y + 0.1, w: cw - 1.25, h: chh - 0.2, fontSize: 19, color: C.text1, valign: "middle", isTextBox: true, margin: 0 });
+        s.addText(b, { x: x + 1.05, y: y + 0.1, w: cw - 1.25, h: chh - 0.2, fontSize: 20, color: C.text1, valign: "middle", isTextBox: true, margin: 0 });
       });
     } else {
       // 重點清單＋角色

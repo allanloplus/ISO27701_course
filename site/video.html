@@ -11,6 +11,7 @@
 <style>
 .vlayout{display:grid;gap:14px;max-width:1360px;margin:0 auto;padding:14px 16px}
 @media(min-width:1040px){.vlayout{grid-template-columns:1fr 320px}}
+.vlayout>*{min-width:0}
 .bar1{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
 .bar1 select{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);max-width:100%;flex:1 1 260px}
 /* 舞台 */
@@ -24,9 +25,10 @@
 .slide li.in{opacity:1;transform:none}
 .slide .note{margin-top:auto;font-size:1.3cqw;color:#5b6478;border-top:1px dashed #ccd;padding-top:.6cqw}
 .char{position:absolute;bottom:3%;width:19%;z-index:3;transition:transform .3s,filter .3s,opacity .3s;filter:saturate(.6) brightness(.92);opacity:.85}
-.char img{width:100%;aspect-ratio:5/6;object-fit:cover;object-position:top;border-radius:1.6cqw;background:#fff;border:.45cqw solid #fff;box-shadow:0 .8cqw 2cqw rgba(0,0,0,.3);display:block}
+.char img{width:100%;height:auto;border-radius:1.6cqw;background:#fff;border:.45cqw solid #fff;box-shadow:0 .8cqw 2cqw rgba(0,0,0,.3);display:block}
 .char .nm{position:absolute;left:50%;bottom:-.6cqw;transform:translateX(-50%);background:#fff;color:#1c2333;font-weight:800;font-size:1.35cqw;padding:.25cqw 1.2cqw;border-radius:99px;white-space:nowrap;box-shadow:0 .3cqw 1cqw rgba(0,0,0,.2)}
 .char.arale{left:1.2%;width:17%}
+.char.allan{width:17.5%}
 .char.arale .nm{color:#e8559a}
 .char.allan{right:1.2%}
 .char.allan .nm{color:#2b5bd7}
@@ -77,7 +79,7 @@
 .trans summary{cursor:pointer;font-weight:700}
 .trans p{margin:.4em 0}
 @media(max-width:640px){.slide{left:3%;right:3%;top:4%;bottom:31%}.slide h2{font-size:4.4cqw}.slide ul{font-size:3.3cqw}.slide .chip{font-size:2.4cqw}.slide .note{display:none}
-  .char{width:20%;bottom:auto;top:auto}.char.arale{left:1%;width:18%;bottom:2%}.char.allan{right:1%;bottom:2%}.char .nm{font-size:2.4cqw}
+  .char{bottom:2%}.char.arale{left:1%;width:17%}.char.allan{right:1%;width:13%}.char .nm{font-size:2.4cqw}
   .sub{left:21%;right:22%;font-size:3.1cqw;bottom:3%;min-height:24%}}
 </style>
 </head>
@@ -165,7 +167,7 @@ function warm(from){
 function showLine(i, reveal=true){
   const f = flat[i]; if (!f) return;
   const sc = ch.video.scenes[f.si];
-  $("chip").textContent = `第 ${ch.no} 章｜場景 ${f.si+1} / ${ch.video.scenes.length}`;
+  $("chip").textContent = `單元 ${ch.no}｜場景 ${f.si+1} / ${ch.video.scenes.length}`;
   if ($("stitle").dataset.si !== String(f.si)){
     $("stitle").dataset.si = f.si; $("stitle").textContent = sc.slide.title;
     $("sbul").innerHTML = (sc.slide.bullets||[]).map(b=>`<li>${fmt(b)}</li>`).join("");

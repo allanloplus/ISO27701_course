@@ -58,7 +58,7 @@
     <div class="card mode"><h3>📝 課後測驗與證書</h3><p class="muted">10 題測驗，80 分及格。通過後填寫資料即可下載結業證書，並附題目與解答。</p><a href="quiz.html">前往測驗 →</a></div>
   </section>
 
-  <h2 style="margin-top:28px">課程章節</h2>
+  <h2 style="margin-top:28px">課程單元（可自由選擇）</h2>
   <p class="muted" id="sum"></p>
   <section class="card" id="chapters"></section>
 </main>
@@ -79,7 +79,7 @@ document.getElementById("chapters").innerHTML = cat.map(c => {
     <div class="acts"><a href="text.html#${c.id}">📖 文字教材</a><a href="video.html#${c.id}">🎬 互動影音</a></div>
   </div></div>`;
 }).join("");
-document.getElementById("sum").textContent = `共 ${cat.length} 章，文字教材約 ${Math.round(mins/6)/10} 小時${secs ? "，互動影音約 " + Math.round(secs/360)/10 + " 小時" : ""}。可依需要自由選擇章節。`;
+document.getElementById("sum").textContent = `共 ${cat.length} 個單元，文字教材約 ${Math.round(mins/6)/10} 小時${secs ? "，互動影音約 " + Math.round(secs/360)/10 + " 小時" : ""}。可依需要自由選擇章節。`;
 </script>
 </body>
 </html>
