@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISO 27701 課後測驗</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232b5bd7'/><path d='M32 12l16 6v12c0 11-7 19-16 22-9-3-16-11-16-22V18z' fill='white'/></svg>">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.qwrap{max-width:860px;margin:0 auto;padding:16px}
+.intro{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.intro img{width:96px;height:112px}
+.qitem{margin:14px 0}
+.qitem h3{font-size:17px;margin:0 0 8px;line-height:1.5}
+.qitem label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:6px 0;cursor:pointer;background:var(--surface)}
+.qitem label:hover{border-color:var(--brand)}
+.qitem input{margin-top:6px}
+.qitem.miss{outline:2px solid var(--bad);outline-offset:4px;border-radius:12px}
+.form{display:grid;gap:12px}
+@media(min-width:640px){.form{grid-template-columns:1fr 1fr}}
+.form label{display:grid;gap:4px;font-weight:600;font-size:14px}
+.form input{font:inherit;font-weight:400;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.form .full{grid-column:1/-1}
+.err{color:var(--bad);font-size:13px;min-height:1em}
+.score{font-size:56px;font-weight:900;line-height:1}
+.pass{color:var(--ok)}.fail{color:var(--bad)}
+canvas.prev{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);background:#fff}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.ans{font-size:14px}
+.ans .ok{color:var(--ok);font-weight:700}
+#printArea{display:none}
+@media print{
+  body *{visibility:hidden}
+  #printArea,#printArea *{visibility:visible}
+  #printArea{display:block;position:absolute;left:0;top:0;width:100%}
+  #printArea img{width:100%;page-break-after:always;display:block}
+  @page{size:A4 landscape;margin:8mm}
+}
+</style>
+</head>
+<body>
+<main class="qwrap">
+  <section class="card intro" id="intro">
+    <img class="avatar" src="assets/img/arale.webp" alt="阿拉蕾">
+    <div style="flex:1;min-width:240px">
+      <h1 style="margin:0 0 6px;font-size:24px">課後測驗</h1>
+      <p class="muted" style="margin:0">共 10 題單選題，每題 10 分，<b>80 分（含）以上及格</b>。及格後填寫公司名稱、單位、姓名、職稱與 e-mail，即可下載結業證書，證書附測驗題目與解答。未及格請回去重讀相關章節，或直接再測一次喔！</p>
+    </div>
+  </section>
+
+  <form id="quiz" class="card" style="margin-top:14px"></form>
+
+  <section id="result" class="card" style="margin-top:14px" hidden></section>
+
+  <section id="info" class="card" style="margin-top:14px" hidden>
+    <h2 style="margin-top:0">🎓 恭喜通過！請填寫證書資料</h2>
+    <p class="muted" style="margin-top:0">以下資料將顯示在結業證書上，請確認填寫正確（全部必填）。資料只在您的瀏覽器內產生證書，不會上傳。</p>
+    <div class="form">
+      <label>公司名稱<input id="f-company" autocomplete="organization" required maxlength="60"></label>
+      <label>單位／部門<input id="f-unit" required maxlength="40"></label>
+      <label>姓名<input id="f-name" autocomplete="name" required maxlength="30"></label>
+      <label>職稱<input id="f-title" autocomplete="organization-title" required maxlength="30"></label>
+      <label class="full">E-mail<input id="f-email" type="email" autocomplete="email" required maxlength="80"></label>
+    </div>
+    <div class="err" id="ferr"></div>
+    <div class="acts"><button class="btn accent" id="mkCert" type="button">產生結業證書</button></div>
+  </section>
+
+  <section id="cert" class="card" style="margin-top:14px" hidden>
+    <h2 style="margin-top:0">📜 結業證書</h2>
+    <canvas id="cv" class="prev" width="2000" height="1414"></canvas>
+    <div class="acts">
+      <button class="btn" id="dlCert" type="button">⬇ 下載證書（PNG）</button>
+      <button class="btn ghost" id="dlAns" type="button">⬇ 下載測驗題目與解答（PNG）</button>
+      <button class="btn ghost" id="print" type="button">🖨 列印／另存 PDF（證書＋解答）</button>
+    </div>
+    <h3>測驗題目與解答</h3>
+    <canvas id="cv2" class="prev" width="2000" height="2800"></canvas>
+  </section>
+</main>
+<div id="printArea"></div>
+<script src="assets/common.js"></script>
+<script src="data/catalog.js"></script>
+<script src="assets/quiz-data.js"></script>
+<script>
+Course.topbar("quiz");
+const {esc, store} = Course;
+const Q = window.QUIZ, cat = window.CATALOG || [];
+const $ = id => document.getElementById(id);
+let order = [], picks = [], score = 0, passedAt = null;
+const allan = new Image(); allan.src = "assets/img/allan.webp";
+const arale = new Image(); arale.src = "assets/img/arale.webp";
+
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function build(){
+  // 每次測驗重新打亂選項順序
+  order = Q.questions.map(q => shuffle(q.options.map((_,j)=>j)));
+  $("quiz").innerHTML = Q.questions.map((q,i)=>`<div class="qitem" id="qi${i}"><h3>${i+1}. ${esc(q.q)}</h3>${order[i].map((j,k)=>`<label><input type="radio" name="q${i}" value="${j}"><span>${String.fromCharCode(65+k)}. ${esc(q.options[j])}</span></label>`).join("")}</div>`).join("") +
+    `<div class="err" id="qerr"></div><div class="acts"><button class="btn" type="submit">送出作答</button></div>`;
+  $("quiz").hidden = false; $("result").hidden = true; $("info").hidden = true; $("cert").hidden = true;
+}
+
+$("quiz").addEventListener("submit", e=>{
+  e.preventDefault();
+  picks = Q.questions.map((_,i)=>{ const r = document.querySelector(`input[name=q${i}]:checked`); return r ? +r.value : null; });
+  const miss = picks.map((p,i)=>p==null?i:-1).filter(i=>i>=0);
+  document.querySelectorAll(".qitem").forEach((el,i)=>el.classList.toggle("miss", miss.includes(i)));
+  if (miss.length){ $("qerr").textContent = `還有 ${miss.length} 題未作答（第 ${miss.map(i=>i+1).join("、")} 題）`; $("qi"+miss[0]).scrollIntoView({behavior:"smooth",block:"center"}); return; }
+  const right = picks.filter((p,i)=>p===Q.questions[i].answer).length;
+  score = right * 10;
+  const pass = score >= Q.pass;
+  const r = $("result"); r.hidden = false;
+  if (pass){
+    passedAt = new Date();
+    r.innerHTML = `<div class="score pass">${score} 分</div><p><b>恭喜通過！</b>答對 ${right} / 10 題。請在下方填寫資料以產生結業證書。</p>`;
+    $("quiz").hidden = true; $("info").hidden = false;
+    const saved = store.get("certInfo", null);
+    if (saved) ["company","unit","name","title","email"].forEach(k=>{ $("f-"+k).value = saved[k]||""; });
+    $("info").scrollIntoView({behavior:"smooth"});
+  } else {
+    const wrongRefs = [...new Set(picks.map((p,i)=>p!==Q.questions[i].answer?Q.questions[i].ref:null).filter(Boolean))];
+    const links = wrongRefs.map(id=>{const c=cat.find(x=>x.id===id); return c?`<li><a href="text.html#${id}">📖 ${esc(c.title)}</a>｜<a href="video.html#${id}">🎬 影音</a></li>`:"";}).join("");
+    r.innerHTML = `<div class="score fail">${score} 分</div><p><b>還差一點點！</b>答對 ${right} / 10 題，及格標準為 ${Q.pass} 分。</p>
+      <p>阿拉蕾建議先回去複習下列章節，再來挑戰一次：</p><ul>${links}</ul>
+      <div class="acts"><button class="btn" id="retry" type="button">↺ 重新測驗</button><a class="btn ghost" href="text.html">📖 重新閱讀教材</a></div>`;
+    $("quiz").hidden = true;
+    $("retry").onclick = ()=>{ build(); window.scrollTo({top:0,behavior:"smooth"}); };
+    r.scrollIntoView({behavior:"smooth"});
+  }
+});
+
+function certNo(info){
+  let h = 0; const s = info.email + info.name + passedAt.toISOString().slice(0,10);
+  for (const c of s) h = (h*31 + c.charCodeAt(0)) >>> 0;
+  const d = passedAt;
+  return `PIMS-${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}-${h.toString(36).toUpperCase().padStart(6,"0").slice(-6)}`;
+}
+const FONT = '"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+function wrap(ctx, text, x, y, maxW, lh){
+  let line = "", yy = y;
+  for (const ch of text){
+    if (ch === "\n"){ ctx.fillText(line, x, yy); line=""; yy+=lh; continue; }
+    if (ctx.measureText(line+ch).width > maxW && line){ ctx.fillText(line, x, yy); line = ch; yy += lh; }
+    else line += ch;
+  }
+  if (line){ ctx.fillText(line, x, yy); yy += lh; }
+  return yy;
+}
+function drawCert(info){
+  const cv = $("cv"), ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+  ctx.fillStyle = "#fffdf7"; ctx.fillRect(0,0,W,H);
+  ctx.strokeStyle = "#1d3b8f"; ctx.lineWidth = 18; ctx.strokeRect(40,40,W-80,H-80);
+  ctx.strokeStyle = "#c9a227"; ctx.lineWidth = 4; ctx.strokeRect(78,78,W-156,H-156);
+  const g = ctx.createLinearGradient(0,0,W,0); g.addColorStop(0,"#1d3b8f"); g.addColorStop(1,"#5d8cff");
+  ctx.fillStyle = g; ctx.fillRect(78,78,W-156,150);
+  ctx.fillStyle = "#fff"; ctx.textAlign = "center";
+  ctx.font = `700 40px ${FONT}`; ctx.fillText("ISO/IEC 27701:2025 Privacy Information Management System", W/2, 150);
+  ctx.font = `400 30px ${FONT}`; ctx.fillText("隱私資訊管理系統（PIMS）線上課程", W/2, 200);
+  ctx.fillStyle = "#1d3b8f"; ctx.font = `900 110px ${FONT}`; ctx.fillText("結 業 證 書", W/2, 380);
+  ctx.fillStyle = "#8a6d12"; ctx.font = `600 34px ${FONT}`; ctx.fillText("CERTIFICATE OF COMPLETION", W/2, 435);
+  ctx.fillStyle = "#333"; ctx.font = `400 40px ${FONT}`; ctx.fillText("茲證明", W/2, 530);
+  ctx.fillStyle = "#111"; ctx.font = `800 96px ${FONT}`; ctx.fillText(info.name, W/2, 650);
+  ctx.strokeStyle = "#c9a227"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(W/2-420,680); ctx.lineTo(W/2+420,680); ctx.stroke();
+  ctx.fillStyle = "#333"; ctx.font = `500 38px ${FONT}`;
+  ctx.fillText(`${info.company}｜${info.unit}｜${info.title}`, W/2, 745);
+  ctx.font = `400 40px ${FONT}`;
+  ctx.fillText("已完成「ISO/IEC 27701:2025 隱私資訊管理系統」課程，", W/2, 840);
+  ctx.fillText(`並通過課後測驗（成績 ${score} 分），特頒此證。`, W/2, 900);
+  const d = passedAt, ds = `${d.getFullYear()} 年 ${d.getMonth()+1} 月 ${d.getDate()} 日`;
+  ctx.textAlign = "left"; ctx.font = `400 30px ${FONT}`; ctx.fillStyle = "#444";
+  ctx.fillText(`證書編號：${certNo(info)}`, 170, 1110);
+  ctx.fillText(`發證日期：${ds}`, 170, 1160);
+  ctx.fillText(`E-mail：${info.email}`, 170, 1210);
+  // 講師與助教
+  try { ctx.drawImage(arale, W-690, 1000, 150, 180); ctx.drawImage(allan, W-520, 960, 190, 226); } catch(e){}
+  ctx.strokeStyle = "#1d3b8f"; ctx.lineWidth = 3; ctx.strokeRect(W-690,1000,150,180); ctx.strokeRect(W-520,960,190,226);
+  ctx.textAlign = "center"; ctx.fillStyle = "#1d3b8f"; ctx.font = `800 40px ${FONT}`; ctx.fillText("Allan", W-215, 1090);
+  ctx.font = `400 28px ${FONT}`; ctx.fillStyle = "#555"; ctx.fillText("課程講師", W-215, 1135); ctx.fillText("助教 阿拉蕾", W-215, 1175);
+  // 印章
+  ctx.save(); ctx.translate(W/2, 1120); ctx.rotate(-0.12);
+  ctx.strokeStyle = "rgba(200,30,30,.8)"; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(0,0,105,0,Math.PI*2); ctx.stroke();
+  ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0,0,88,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle = "rgba(200,30,30,.85)"; ctx.font = `900 40px ${FONT}`; ctx.fillText("PIMS", 0, -8); ctx.font = `700 30px ${FONT}`; ctx.fillText("測驗通過", 0, 38);
+  ctx.restore();
+  ctx.fillStyle = "#888"; ctx.font = `400 22px ${FONT}`; ctx.fillText("本證書證明完成本線上課程及測驗，非 ISO/IEC 27701 驗證證書。", W/2, H-110);
+}
+function drawAnswers(info){
+  const cv = $("cv2"), ctx = cv.getContext("2d"), W = cv.width;
+  // 先以大高度繪製，再裁切
+  cv.height = 3600;
+  ctx.fillStyle = "#fff"; ctx.fillRect(0,0,W,cv.height);
+  ctx.fillStyle = "#1d3b8f"; ctx.fillRect(0,0,W,150);
+  ctx.fillStyle = "#fff"; ctx.textAlign = "left"; ctx.font = `800 54px ${FONT}`; ctx.fillText("ISO/IEC 27701:2025 課後測驗　題目與解答", 70, 95);
+  ctx.fillStyle = "#333"; ctx.font = `400 30px ${FONT}`;
+  let y = 215;
+  ctx.fillText(`受測者：${info.name}（${info.company}／${info.unit}／${info.title}）　成績：${score} 分　證書編號：${certNo(info)}`, 70, y); y += 70;
+  Q.questions.forEach((q,i)=>{
+    ctx.fillStyle = "#111"; ctx.font = `700 34px ${FONT}`;
+    y = wrap(ctx, `${i+1}. ${q.q}`, 70, y, W-140, 48);
+    ctx.font = `400 30px ${FONT}`;
+    q.options.forEach((o,j)=>{
+      const isAns = j===q.answer, mine = picks[i]===j;
+      ctx.fillStyle = isAns ? "#1f9d55" : (mine ? "#d64545" : "#444");
+      y = wrap(ctx, `${isAns?"✔":"　"} (${String.fromCharCode(65+j)}) ${o}${mine?"　← 您的作答":""}`, 100, y, W-200, 42);
+    });
+    ctx.fillStyle = "#2b5bd7"; ctx.font = `400 28px ${FONT}`;
+    y = wrap(ctx, `解析：${q.explain}`, 100, y+4, W-200, 40);
+    y += 26;
+  });
+  const img = ctx.getImageData(0,0,W,y+40);
+  cv.height = y + 40; ctx.putImageData(img,0,0);
+}
+function download(cv, name){
+  const a = document.createElement("a"); a.download = name; a.href = cv.toDataURL("image/png"); document.body.appendChild(a); a.click(); a.remove();
+}
+$("mkCert").onclick = async ()=>{
+  const info = {}; let bad = "";
+  for (const k of ["company","unit","name","title","email"]){ info[k] = $("f-"+k).value.trim(); if (!info[k]) bad = "請完整填寫所有欄位"; }
+  if (!bad && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(info.email)) bad = "E-mail 格式不正確";
+  $("ferr").textContent = bad; if (bad) return;
+  store.set("certInfo", info);
+  try { await document.fonts.ready; } catch(e){}
+  await Promise.all([allan, arale].map(im => im.complete ? 0 : new Promise(r=>{im.onload=im.onerror=r;})));
+  drawCert(info); drawAnswers(info);
+  $("cert").hidden = false; $("cert").scrollIntoView({behavior:"smooth"});
+  const base = `ISO27701_${info.name}`;
+  $("dlCert").onclick = ()=>download($("cv"), base + "_結業證書.png");
+  $("dlAns").onclick = ()=>download($("cv2"), base + "_測驗解答.png");
+  $("print").onclick = ()=>{ $("printArea").innerHTML = `<img src="${$("cv").toDataURL()}"><img src="${$("cv2").toDataURL()}">`; setTimeout(()=>window.print(), 200); };
+};
+build();
+</script>
+</body>
+</html>

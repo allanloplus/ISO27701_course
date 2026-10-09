@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISO 27701 互動影音</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232b5bd7'/><path d='M32 12l16 6v12c0 11-7 19-16 22-9-3-16-11-16-22V18z' fill='white'/></svg>">
+<link rel="preload" as="image" href="assets/img/allan.webp">
+<link rel="preload" as="image" href="assets/img/arale.webp">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.vlayout{display:grid;gap:14px;max-width:1360px;margin:0 auto;padding:14px 16px}
+@media(min-width:1040px){.vlayout{grid-template-columns:1fr 320px}}
+.bar1{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+.bar1 select{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);max-width:100%;flex:1 1 260px}
+/* 舞台 */
+.stage{position:relative;aspect-ratio:16/9;width:100%;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#1d3b8f 0%,#2b5bd7 55%,#5d8cff 100%);box-shadow:var(--shadow);container-type:inline-size;user-select:none}
+.stage::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 80% 10%,rgba(255,255,255,.18),transparent 40%),radial-gradient(circle at 10% 90%,rgba(255,182,213,.25),transparent 35%);pointer-events:none}
+.slide{position:absolute;left:21%;right:21%;top:6%;bottom:27%;background:rgba(255,255,255,.97);color:#1c2333;border-radius:2.2cqw;padding:2.4cqw 3cqw;box-shadow:0 1cqw 3cqw rgba(0,0,0,.25);display:flex;flex-direction:column;overflow:hidden;z-index:2}
+.slide .chip{font-size:1.35cqw;color:#2b5bd7;font-weight:800;letter-spacing:.05em}
+.slide h2{font-size:2.7cqw;line-height:1.3;margin:.4cqw 0 1.2cqw;color:#1d3b8f}
+.slide ul{margin:0;padding-left:2.4cqw;font-size:1.85cqw;line-height:1.55}
+.slide li{margin:.35cqw 0;opacity:0;transform:translateY(.6cqw);transition:all .45s}
+.slide li.in{opacity:1;transform:none}
+.slide .note{margin-top:auto;font-size:1.3cqw;color:#5b6478;border-top:1px dashed #ccd;padding-top:.6cqw}
+.char{position:absolute;bottom:3%;width:19%;z-index:3;transition:transform .3s,filter .3s,opacity .3s;filter:saturate(.6) brightness(.92);opacity:.85}
+.char img{width:100%;aspect-ratio:5/6;object-fit:cover;object-position:top;border-radius:1.6cqw;background:#fff;border:.45cqw solid #fff;box-shadow:0 .8cqw 2cqw rgba(0,0,0,.3);display:block}
+.char .nm{position:absolute;left:50%;bottom:-.6cqw;transform:translateX(-50%);background:#fff;color:#1c2333;font-weight:800;font-size:1.35cqw;padding:.25cqw 1.2cqw;border-radius:99px;white-space:nowrap;box-shadow:0 .3cqw 1cqw rgba(0,0,0,.2)}
+.char.arale{left:1.2%;width:17%}
+.char.arale .nm{color:#e8559a}
+.char.allan{right:1.2%}
+.char.allan .nm{color:#2b5bd7}
+.char.talk{filter:none;opacity:1;transform:translateY(-1.2cqw) scale(1.05)}
+.char.talk img{animation:bob .5s ease-in-out infinite alternate}
+.char.arale.talk img{border-color:#ffb3d4}
+.char.allan.talk img{border-color:#ffd27a}
+@keyframes bob{from{transform:translateY(0) rotate(-.6deg)}to{transform:translateY(-.5cqw) rotate(.6deg)}}
+.wave{position:absolute;top:-3cqw;left:50%;transform:translateX(-50%);display:none;gap:.4cqw}
+.char.talk .wave{display:flex}
+.wave i{width:.6cqw;height:2cqw;background:#fff;border-radius:1cqw;animation:wv .6s ease-in-out infinite}
+.wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}
+@keyframes wv{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+.sub{position:absolute;left:21%;right:21%;bottom:4%;min-height:18%;background:rgba(10,18,40,.82);color:#fff;border-radius:1.6cqw;padding:1.2cqw 2cqw;font-size:1.95cqw;line-height:1.5;z-index:4;display:flex;align-items:center}
+.sub b{margin-right:.6cqw;white-space:nowrap}
+.sub b.arale{color:#ffb3d4}.sub b.allan{color:#ffd27a}
+.sub.off{display:none}
+/* 覆蓋層 */
+.ov{position:absolute;inset:0;z-index:10;background:rgba(10,18,40,.72);display:flex;align-items:center;justify-content:center;padding:3cqw;color:#fff;text-align:center}
+.ov[hidden]{display:none}
+.ov .panel{background:#fff;color:#1c2333;border-radius:2cqw;padding:2.5cqw 3cqw;max-width:78cqw;width:100%;text-align:left;max-height:100%;overflow:auto}
+.ov h3{margin:0 0 1cqw;font-size:max(16px,2.4cqw)}
+.ov .opts{display:grid;gap:1cqw}
+.ov .opts button{font:inherit;font-size:max(14px,1.8cqw);text-align:left;padding:1cqw 1.6cqw;border-radius:1cqw;border:2px solid #dde2ee;background:#f6f7fb;cursor:pointer;color:#1c2333}
+.ov .opts button.right{border-color:#1f9d55;background:#e9f6ef}
+.ov .opts button.wrong{border-color:#d64545;background:#fde8e8}
+.ov .ex{margin-top:1.2cqw;font-size:max(14px,1.7cqw)}
+.bigplay{display:flex;flex-direction:column;align-items:center;gap:1.5cqw}
+.bigplay button{width:12cqw;height:12cqw;min-width:64px;min-height:64px;border-radius:50%;border:0;background:#fff;color:#2b5bd7;font-size:max(26px,5cqw);cursor:pointer;box-shadow:0 0 0 1.2cqw rgba(255,255,255,.25)}
+.bigplay h2{margin:0;font-size:max(18px,3.2cqw)}
+.bigplay p{margin:0;opacity:.85;font-size:max(13px,1.7cqw)}
+.spin{position:absolute;top:2%;right:2%;z-index:6;font-size:12px;color:#fff;background:rgba(0,0,0,.35);padding:2px 8px;border-radius:99px}
+/* 控制列 */
+.ctrl{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.ctrl button,.ctrl select{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:8px 12px;cursor:pointer}
+.ctrl button.main{background:var(--brand);color:var(--brand-ink);border-color:var(--brand);min-width:84px}
+.prog{flex:1 1 200px;height:10px;background:var(--surface2);border-radius:99px;cursor:pointer;position:relative;overflow:hidden}
+.prog i{position:absolute;left:0;top:0;bottom:0;background:var(--brand);border-radius:99px;width:0;transition:width .2s}
+.ctrl .t{font-size:13px;color:var(--muted);min-width:70px;text-align:right}
+/* 場景清單 */
+.scenes h3{margin:0 0 8px;font-size:15px}
+.scenes ol{list-style:none;margin:0;padding:0;display:grid;gap:4px;max-height:62vh;overflow:auto}
+.scenes li button{width:100%;text-align:left;font:inherit;font-size:14px;line-height:1.4;padding:8px 10px;border-radius:8px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.scenes li button:hover{background:var(--surface2)}
+.scenes li button.on{background:var(--brand);color:var(--brand-ink)}
+.scenes li button small{opacity:.7}
+.trans{margin-top:12px;font-size:14px}
+.trans summary{cursor:pointer;font-weight:700}
+.trans p{margin:.4em 0}
+@media(max-width:640px){.slide{left:3%;right:3%;top:4%;bottom:31%}.slide h2{font-size:4.4cqw}.slide ul{font-size:3.3cqw}.slide .chip{font-size:2.4cqw}.slide .note{display:none}
+  .char{width:20%;bottom:auto;top:auto}.char.arale{left:1%;width:18%;bottom:2%}.char.allan{right:1%;bottom:2%}.char .nm{font-size:2.4cqw}
+  .sub{left:21%;right:22%;font-size:3.1cqw;bottom:3%;min-height:24%}}
+</style>
+</head>
+<body>
+<div class="vlayout">
+  <section>
+    <div class="bar1">
+      <label for="chsel" class="muted" style="font-size:14px">章節選擇</label>
+      <select id="chsel"></select>
+      <a class="btn ghost" id="toText" href="text.html" style="padding:8px 12px;font-size:14px">📖 本章文字教材</a>
+    </div>
+    <div class="stage" id="stage">
+      <div class="slide" id="slide"><div class="chip" id="chip"></div><h2 id="stitle"></h2><ul id="sbul"></ul><div class="note" id="snote" hidden></div></div>
+      <div class="char arale" id="c-arale"><div class="wave"><i></i><i></i><i></i></div><img src="assets/img/arale.webp" alt="助教阿拉蕾"><span class="nm">阿拉蕾</span></div>
+      <div class="char allan" id="c-allan"><div class="wave"><i></i><i></i><i></i></div><img src="assets/img/allan.webp" alt="Allan 講師"><span class="nm">Allan 講師</span></div>
+      <div class="sub" id="sub"></div>
+      <div class="spin" id="spin" hidden>載入語音…</div>
+      <div class="ov" id="ovStart"><div class="bigplay"><button id="bigPlay" aria-label="開始播放">▶</button><h2 id="ovTitle">載入中…</h2><p id="ovInfo"></p></div></div>
+      <div class="ov" id="ovQuiz" hidden><div class="panel"><h3 id="qq"></h3><div class="opts" id="qo"></div><div class="ex" id="qe" hidden></div><div style="margin-top:1.4cqw;text-align:right"><button class="btn" id="qc" hidden>繼續播放 ▶</button></div></div></div>
+      <div class="ov" id="ovEnd" hidden><div class="panel" style="text-align:center"><h3>🎉 本章完成！</h3><p id="endMsg"></p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn ghost" id="again">↺ 重看本章</button><a class="btn ghost" id="endText" href="text.html">📖 讀文字教材</a><button class="btn" id="nextCh">下一章 →</button></div></div></div>
+    </div>
+    <div class="ctrl">
+      <button id="bPrevS" title="上一場景">⏮</button>
+      <button id="bPrev" title="上一句">◀</button>
+      <button id="bPlay" class="main">▶ 播放</button>
+      <button id="bNext" title="下一句">▶</button>
+      <button id="bNextS" title="下一場景">⏭</button>
+      <div class="prog" id="prog" title="點擊跳轉"><i id="progI"></i></div>
+      <span class="t" id="pos">0 / 0</span>
+      <select id="rate" title="播放速度"><option value="0.9">0.9x</option><option value="1" selected>1.0x</option><option value="1.15">1.15x</option><option value="1.3">1.3x</option><option value="1.5">1.5x</option></select>
+      <button id="bSub" title="字幕開關">字幕：開</button>
+      <label style="font-size:13px" class="muted"><input type="checkbox" id="autoNext"> 自動播下一章</label>
+    </div>
+    <details class="trans card" style="margin-top:12px"><summary>📝 本章逐字稿</summary><div id="trans"></div></details>
+  </section>
+  <aside class="card scenes"><h3>場景段落（點選跳播）</h3><ol id="slist"></ol></aside>
+</div>
+<script src="assets/common.js"></script>
+<script src="data/catalog.js"></script>
+<script>
+Course.topbar("video");
+const {esc, fmt, store} = Course;
+const cat = window.CATALOG || [];
+const $ = id => document.getElementById(id);
+const NAME = {allan:"Allan 講師", arale:"阿拉蕾"};
+let ch = null, flat = [], idx = 0, playing = false, token = 0, subOn = store.get("subOn", true);
+const audio = new Audio(); audio.preload = "auto";
+const pre = new Map();
+let rate = +store.get("rate", 1); $("rate").value = String(rate);
+$("autoNext").checked = !!store.get("autoNext", false);
+
+$("chsel").innerHTML = cat.map(c=>`<option value="${c.id}">${c.no}. ${esc(c.title)}</option>`).join("");
+
+function fmtTime(s){ s=Math.round(s||0); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+
+async function openChapter(id, autoplay){
+  stop(); token++;
+  $("chsel").value = id; $("toText").href = "text.html#"+id; $("endText").href = "text.html#"+id;
+  $("ovEnd").hidden = true; $("ovQuiz").hidden = true; $("ovStart").hidden = false;
+  const meta = cat.find(c=>c.id===id) || {};
+  $("ovTitle").textContent = meta.title || ""; $("ovInfo").textContent = "載入中…";
+  try { ch = await Course.loadChapter(id); } catch(e){ $("ovInfo").textContent = "載入失敗，請重新整理"; return; }
+  flat = [];
+  (ch.video.scenes||[]).forEach((sc,si)=>sc.lines.forEach((ln,li)=>flat.push({si,li,ln,last: li===sc.lines.length-1})));
+  idx = 0;
+  const total = flat.reduce((a,f)=>a+(f.ln.d||f.ln.text.length*0.24),0);
+  $("ovInfo").textContent = `${ch.video.scenes.length} 個場景・約 ${Math.max(1,Math.round(total/60))} 分鐘・點一下開始`;
+  $("slist").innerHTML = ch.video.scenes.map((sc,si)=>`<li><button data-si="${si}">${si+1}. ${esc(sc.slide.title)}${sc.quiz?" <small>✍️小問答</small>":""}</button></li>`).join("");
+  $("trans").innerHTML = ch.video.scenes.map((sc,si)=>`<h4>${si+1}. ${esc(sc.slide.title)}</h4>`+sc.lines.map(l=>`<p><b>${NAME[l.who]}：</b>${fmt(l.text)}</p>`).join("")).join("");
+  history.replaceState(null,"","#"+id);
+  document.title = ch.title + "｜ISO 27701 互動影音";
+  showLine(0, false);
+  warm(0);  // 先預載第一句語音，按下播放即可出聲
+  if (autoplay) start();
+}
+
+function warm(from){
+  for (let k=from;k<from+3&&k<flat.length;k++){
+    const a = flat[k].ln.a; if (!a || pre.has(a)) continue;
+    const x = new Audio(); x.preload = "auto"; x.src = a; pre.set(a, x);
+    if (pre.size > 8) pre.delete(pre.keys().next().value);
+  }
+}
+
+function showLine(i, reveal=true){
+  const f = flat[i]; if (!f) return;
+  const sc = ch.video.scenes[f.si];
+  $("chip").textContent = `第 ${ch.no} 章｜場景 ${f.si+1} / ${ch.video.scenes.length}`;
+  if ($("stitle").dataset.si !== String(f.si)){
+    $("stitle").dataset.si = f.si; $("stitle").textContent = sc.slide.title;
+    $("sbul").innerHTML = (sc.slide.bullets||[]).map(b=>`<li>${fmt(b)}</li>`).join("");
+    $("snote").hidden = !sc.slide.note; $("snote").textContent = sc.slide.note||"";
+    document.querySelectorAll("#slist button").forEach(b=>b.classList.toggle("on", +b.dataset.si===f.si));
+  }
+  // 依台詞進度逐步顯示重點
+  const lis = $("sbul").children, n = lis.length, L = sc.lines.length;
+  const showN = reveal ? Math.min(n, Math.ceil((f.li+1)/L*n)) : 0;
+  for (let k=0;k<n;k++) lis[k].classList.toggle("in", k<showN || !reveal && false);
+  $("sub").innerHTML = `<b class="${f.ln.who}">${NAME[f.ln.who]}：</b><span>${fmt(f.ln.text)}</span>`;
+  $("sub").classList.toggle("off", !subOn);
+  $("c-allan").classList.toggle("talk", reveal && f.ln.who==="allan");
+  $("c-arale").classList.toggle("talk", reveal && f.ln.who==="arale");
+  $("progI").style.width = ((i+1)/flat.length*100)+"%";
+  $("pos").textContent = `${i+1} / ${flat.length}`;
+}
+
+function speakFallback(text, who, my){
+  return new Promise(res=>{
+    const ss = window.speechSynthesis;
+    if (ss && window.SpeechSynthesisUtterance){
+      const u = new SpeechSynthesisUtterance(text.replace(/\*\*/g,""));
+      u.lang = "zh-TW"; u.rate = rate; u.pitch = who==="arale"?1.5:0.9;
+      const v = ss.getVoices().find(v=>/zh[-_]TW/i.test(v.lang)); if (v) u.voice = v;
+      u.onend = u.onerror = ()=>res(); ss.cancel(); ss.speak(u);
+    } else setTimeout(res, text.length*240/rate);
+  });
+}
+
+function playAudio(src){
+  return new Promise((res, rej)=>{
+    const p = pre.get(src);
+    audio.src = p ? p.src : src; audio.playbackRate = rate;
+    let shown = setTimeout(()=>$("spin").hidden=false, 600);
+    audio.oncanplay = ()=>{clearTimeout(shown); $("spin").hidden = true;};
+    audio.onended = ()=>{clearTimeout(shown); res();};
+    audio.onerror = ()=>{clearTimeout(shown); $("spin").hidden = true; rej();};
+    audio.play().catch(rej);
+  });
+}
+
+async function loop(){
+  const my = ++token;
+  while (playing && my===token && idx < flat.length){
+    const f = flat[idx];
+    showLine(idx); warm(idx+1);
+    try { if (f.ln.a) await playAudio(f.ln.a); else await speakFallback(f.ln.text, f.ln.who, my); }
+    catch(e){ if (my!==token) return; await speakFallback(f.ln.text, f.ln.who, my); }
+    if (my!==token || !playing) return;
+    await new Promise(r=>setTimeout(r, 250));
+    if (my!==token || !playing) return;
+    const sc = ch.video.scenes[f.si];
+    if (f.last && sc.quiz){ idx++; pause(); askQuiz(sc.quiz); return; }
+    idx++;
+  }
+  if (playing && idx >= flat.length) finish();
+}
+
+function start(){ if (!ch) return; $("ovStart").hidden = true; $("ovEnd").hidden = true; playing = true; $("bPlay").textContent = "⏸ 暫停"; loop(); }
+function pause(){ playing = false; token++; audio.pause(); try{speechSynthesis.cancel()}catch(e){} $("bPlay").textContent = "▶ 播放"; $("c-allan").classList.remove("talk"); $("c-arale").classList.remove("talk"); }
+function stop(){ pause(); }
+function jump(i){ const was = playing || !$("ovStart").hidden; pause(); idx = Math.max(0, Math.min(flat.length-1, i)); $("ovStart").hidden = true; $("ovQuiz").hidden = true; $("ovEnd").hidden = true; showLine(idx); if (was) start(); }
+function sceneStart(si){ return flat.findIndex(f=>f.si===si); }
+
+function askQuiz(q){
+  $("ovQuiz").hidden = false; $("qq").textContent = "✍️ 隨堂小問答：" + q.q; $("qe").hidden = true; $("qc").hidden = true;
+  $("qo").innerHTML = q.options.map((o,j)=>`<button data-j="${j}">${String.fromCharCode(65+j)}. ${esc(o)}</button>`).join("");
+  $("qo").onclick = e=>{ const b = e.target.closest("button"); if(!b) return; const j=+b.dataset.j;
+    [...$("qo").children].forEach((x,k)=>{x.disabled=true; if(k===q.answer) x.classList.add("right");});
+    if (j!==q.answer) b.classList.add("wrong");
+    $("qe").innerHTML = (j===q.answer?"✅ 答對了！":"❌ 再想想～正確答案是 "+String.fromCharCode(65+q.answer)+"。")+"<br>"+fmt(q.explain||"");
+    $("qe").hidden = false; $("qc").hidden = false; };
+}
+$("qc").onclick = ()=>{ $("ovQuiz").hidden = true; if (idx < flat.length) start(); else finish(); };
+
+function finish(){
+  pause(); const p = store.get("progress",{}); p[ch.id] = Object.assign(p[ch.id]||{}, {video:true}); store.set("progress",p);
+  const i = cat.findIndex(c=>c.id===ch.id), nx = cat[i+1];
+  $("endMsg").textContent = nx ? `下一章：${nx.title}` : "全部章節完成！快去挑戰課後測驗吧～";
+  $("nextCh").textContent = nx ? "下一章 →" : "📝 前往課後測驗";
+  $("nextCh").onclick = ()=> nx ? openChapter(nx.id, true) : (location.href = "quiz.html");
+  if (nx && $("autoNext").checked) { openChapter(nx.id, true); return; }
+  $("ovEnd").hidden = false;
+}
+
+$("bigPlay").onclick = start;
+$("bPlay").onclick = ()=> playing ? pause() : start();
+$("bNext").onclick = ()=> jump(idx+1);
+$("bPrev").onclick = ()=> jump(idx-1);
+$("bNextS").onclick = ()=>{ const f=flat[idx]; const s=sceneStart(f.si+1); if(s>=0) jump(s); };
+$("bPrevS").onclick = ()=>{ const f=flat[idx]; const s=sceneStart(f.li===0?Math.max(0,f.si-1):f.si); jump(s); };
+$("again").onclick = ()=>{ jump(0); start(); };
+$("slist").onclick = e=>{ const b=e.target.closest("button"); if(b){ jump(sceneStart(+b.dataset.si)); if(!playing) start(); } };
+$("prog").onclick = e=>{ const r=$("prog").getBoundingClientRect(); jump(Math.floor((e.clientX-r.left)/r.width*flat.length)); };
+$("rate").onchange = ()=>{ rate = +$("rate").value; audio.playbackRate = rate; store.set("rate", rate); };
+$("bSub").onclick = ()=>{ subOn = !subOn; store.set("subOn", subOn); $("bSub").textContent = "字幕：" + (subOn?"開":"關"); $("sub").classList.toggle("off", !subOn); };
+$("bSub").textContent = "字幕：" + (subOn?"開":"關");
+$("autoNext").onchange = ()=> store.set("autoNext", $("autoNext").checked);
+$("chsel").onchange = ()=> openChapter($("chsel").value, false);
+document.addEventListener("keydown", e=>{
+  if (e.target.matches("input,select,textarea")) return;
+  if (e.code==="Space"){ e.preventDefault(); playing?pause():start(); }
+  else if (e.code==="ArrowRight") jump(idx+1);
+  else if (e.code==="ArrowLeft") jump(idx-1);
+});
+window.addEventListener("hashchange", ()=>{ const id=location.hash.slice(1); if (cat.some(c=>c.id===id) && (!ch || ch.id!==id)) openChapter(id,false); });
+const first = location.hash.slice(1);
+if (cat.length) openChapter(cat.some(c=>c.id===first) ? first : cat[0].id, false);
+</script>
+</body>
+</html>

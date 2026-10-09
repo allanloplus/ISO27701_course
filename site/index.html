@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISO 27701 線上課程</title>
+<meta name="description" content="ISO/IEC 27701:2025 隱私資訊管理系統（PIMS）線上課程：標準解說、PIMS 管理作法與稽核實務。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232b5bd7'/><path d='M32 12l16 6v12c0 11-7 19-16 22-9-3-16-11-16-22V18z' fill='white'/></svg>">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.hero{display:grid;gap:18px;align-items:center;padding:22px 0}
+@media(min-width:860px){.hero{grid-template-columns:1.3fr 1fr}}
+.hero h1{font-size:clamp(26px,4.4vw,40px);line-height:1.3;margin:0 0 10px}
+.hero h1 span{color:var(--brand)}
+.duo{display:flex;gap:12px;justify-content:center;align-items:flex-end}
+.duo figure{margin:0;text-align:center}
+.duo img{width:min(42vw,200px);height:min(50vw,240px)}
+.duo figcaption{font-weight:700;margin-top:6px}
+.duo .arale img{width:min(34vw,160px);height:min(40vw,190px);border-color:var(--pink)}
+.duo .allan img{border-color:var(--brand)}
+.mode h3{margin:.2em 0}
+.mode p{margin:.3em 0 1em}
+.ch{display:grid;grid-template-columns:44px 1fr;gap:10px;padding:12px 0;border-top:1px solid var(--line)}
+.ch:first-child{border-top:0}
+.ch .no{width:40px;height:40px;border-radius:12px;background:var(--surface2);display:grid;place-items:center;font-weight:800;color:var(--brand)}
+.ch h4{margin:0;font-size:16px}
+.ch .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.ch .acts a{font-size:13px;padding:4px 10px;border-radius:8px;background:var(--surface2);text-decoration:none;color:var(--ink)}
+.ch .done{color:var(--ok);font-size:12px;margin-left:6px}
+.pillars{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.pillars span{padding:6px 12px;border-radius:99px;font-weight:700;font-size:14px}
+.p1{background:var(--aud);color:var(--brand)}.p2{background:var(--tip);color:var(--ok)}.p3{background:var(--warn);color:var(--accent)}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <span class="pill">2025 新版・可獨立驗證的 PIMS 標準</span>
+      <h1><span>ISO/IEC 27701:2025</span><br>隱私資訊管理系統完整課程</h1>
+      <p class="muted">從條文解說、PIMS 管理作法到驗證稽核實務，一次搞懂。實體課的同學可以拿來複習、補充；沒上實體課的同學，也能在這裡完整學習。</p>
+      <div class="pillars"><span class="p1">① 標準詳細解說</span><span class="p2">② PIMS 管理作法</span><span class="p3">③ 常見稽核實務</span></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a class="btn" href="video.html">▶ 開始看互動影音</a>
+        <a class="btn ghost" href="text.html">📖 閱讀文字教材</a>
+        <a class="btn accent" href="quiz.html">📝 課後測驗</a>
+      </div>
+    </div>
+    <div class="duo">
+      <figure class="arale"><img class="avatar" src="assets/img/arale.webp" alt="助教阿拉蕾" width="160" height="190"><figcaption>助教 阿拉蕾</figcaption></figure>
+      <figure class="allan"><img class="avatar" src="assets/img/allan.webp" alt="Allan 講師" width="200" height="240"><figcaption>Allan 講師</figcaption></figure>
+    </div>
+  </section>
+
+  <section class="grid c3">
+    <div class="card mode"><h3>📖 線上文字教材</h3><p class="muted">內容最完整：條文精要、管理作法、表單範例、稽核證據與不符合事項範例，每章附自我檢核。</p><a href="text.html">開始閱讀 →</a></div>
+    <div class="card mode"><h3>🎬 互動影音</h3><p class="muted">Allan 講師與阿拉蕾對話式教學，每章分段、可跳場景、隨堂小問答。每句台詞分開載入，點了就播。</p><a href="video.html">開始觀看 →</a></div>
+    <div class="card mode"><h3>📝 課後測驗與證書</h3><p class="muted">10 題測驗，80 分及格。通過後填寫資料即可下載結業證書，並附題目與解答。</p><a href="quiz.html">前往測驗 →</a></div>
+  </section>
+
+  <h2 style="margin-top:28px">課程章節</h2>
+  <p class="muted" id="sum"></p>
+  <section class="card" id="chapters"></section>
+</main>
+<footer class="foot">講師：Allan｜助教：阿拉蕾｜本課程依 ISO/IEC 27701:2025 編製，條文以英文原文為唯一詮釋依據。</footer>
+<script src="assets/common.js"></script>
+<script src="data/catalog.js"></script>
+<script>
+Course.topbar("home");
+const cat = window.CATALOG || [];
+const seen = Course.store.get("progress", {});
+let mins = 0, secs = 0;
+document.getElementById("chapters").innerHTML = cat.map(c => {
+  mins += c.minutes || 0; secs += c.seconds || 0;
+  const p = seen[c.id] || {};
+  return `<div class="ch"><div class="no">${c.no}</div><div>
+    <h4>${Course.esc(c.title)}${p.text ? '<span class="done">✓已讀</span>' : ''}${p.video ? '<span class="done">✓已看</span>' : ''}</h4>
+    <div class="muted" style="font-size:13px">${(c.clauses||[]).length ? "條款：" + Course.esc(c.clauses.join("、")) + "｜" : ""}閱讀約 ${c.minutes||"-"} 分鐘${c.seconds ? "｜影音約 " + Math.round(c.seconds/60) + " 分鐘" : ""}</div>
+    <div class="acts"><a href="text.html#${c.id}">📖 文字教材</a><a href="video.html#${c.id}">🎬 互動影音</a></div>
+  </div></div>`;
+}).join("");
+document.getElementById("sum").textContent = `共 ${cat.length} 章，文字教材約 ${Math.round(mins/6)/10} 小時${secs ? "，互動影音約 " + Math.round(secs/360)/10 + " 小時" : ""}。可依需要自由選擇章節。`;
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ISO 27701 文字教材</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232b5bd7'/><path d='M32 12l16 6v12c0 11-7 19-16 22-9-3-16-11-16-22V18z' fill='white'/></svg>">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.layout{display:grid;gap:16px;max-width:1280px;margin:0 auto;padding:16px}
+@media(min-width:980px){.layout{grid-template-columns:290px 1fr}}
+.side{align-self:start}
+@media(min-width:980px){.side{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto}}
+.side h3{margin:0 0 8px;font-size:15px}
+.side a{display:block;padding:7px 10px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:14px;line-height:1.45}
+.side a.on{background:var(--brand);color:var(--brand-ink)}
+.side a:not(.on):hover{background:var(--surface2)}
+.side a small{display:block;color:inherit;opacity:.7;font-size:12px}
+.side details summary{cursor:pointer;font-weight:700}
+@media(min-width:980px){.side details summary{display:none}}
+.toc{font-size:14px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+.toc a{padding:4px 10px;font-size:13px;color:var(--muted)}
+article{min-width:0}
+article h1{font-size:clamp(22px,3.4vw,30px);line-height:1.35;margin:.2em 0}
+article h2{font-size:21px;margin:1.8em 0 .6em;padding-top:.4em;border-top:2px solid var(--line);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.kind{font-size:12px;padding:3px 10px;border-radius:99px;font-weight:700}
+.k-standard{background:var(--aud);color:var(--brand)}
+.k-practice{background:var(--tip);color:var(--ok)}
+.k-audit{background:var(--warn);color:var(--accent)}
+.k-intro,.k-summary{background:var(--surface2);color:var(--muted)}
+.obj{background:var(--surface2);border-radius:12px;padding:12px 16px;margin:12px 0}
+.obj ul{margin:.3em 0;padding-left:1.3em}
+.clause{border:1px solid var(--line);border-left:5px solid var(--brand);border-radius:10px;padding:10px 14px;margin:14px 0;background:var(--surface)}
+.clause .ref{font-weight:800;color:var(--brand)}
+.box{border-radius:10px;padding:10px 14px;margin:14px 0;border-left:5px solid}
+.box b.t{display:block;margin-bottom:2px}
+.box.tip{background:var(--tip);border-color:var(--tip-b)}
+.box.auditor{background:var(--aud);border-color:var(--aud-b)}
+.box.warn{background:var(--warn);border-color:var(--warn-b)}
+.box.example{background:var(--ex);border-color:var(--ex-b)}
+.tbl{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px}
+.tbl table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.55}
+.tbl th,.tbl td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+.tbl th{background:var(--surface2);white-space:nowrap}
+.tbl tr:last-child td{border-bottom:0}
+.dlg{margin:14px 0;display:grid;gap:8px}
+.dlg .l{display:flex;gap:10px;align-items:flex-start}
+.dlg img{width:42px;height:42px;border-radius:50%;object-fit:cover;object-position:top;border:2px solid var(--line);background:#fff;flex:none}
+.dlg .b{background:var(--surface2);border-radius:12px;padding:8px 12px}
+.dlg .l.allan{flex-direction:row-reverse}
+.dlg .l.allan .b{background:var(--aud)}
+.kp{background:linear-gradient(135deg,var(--aud),var(--tip));border-radius:14px;padding:14px 18px;margin-top:24px}
+.q{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin:12px 0}
+.q .opts{display:grid;gap:6px;margin-top:8px}
+.q button{text-align:left;font:inherit;padding:8px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.q button.right{background:var(--tip);border-color:var(--ok)}
+.q button.wrong{background:#fde8e8;border-color:var(--bad);color:#222}
+.q .ex{margin-top:8px;font-size:14px}
+.nav2{display:flex;justify-content:space-between;gap:10px;margin:28px 0 8px;flex-wrap:wrap}
+.loading{padding:40px;text-align:center;color:var(--muted)}
+@media print{.topbar,.side,.nav2{display:none}.layout{display:block}}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="side card">
+    <details id="menu" open><summary>📚 章節選單</summary>
+      <h3>章節選擇</h3>
+      <div id="chlist"></div>
+      <div class="toc" id="toc"></div>
+    </details>
+  </aside>
+  <article class="card" id="art"><div class="loading">載入中…</div></article>
+</div>
+<script src="assets/common.js"></script>
+<script src="data/catalog.js"></script>
+<script>
+Course.topbar("text");
+const {esc, fmt, store} = Course;
+const cat = window.CATALOG || [];
+const KIND = {standard:"① 標準條文解說", practice:"② PIMS 管理作法", audit:"③ 稽核實務", intro:"導覽", summary:"總結"};
+const WHO = {allan:["Allan 講師","assets/img/allan.webp"], arale:["阿拉蕾","assets/img/arale.webp"]};
+
+function renderBlock(b){
+  switch(b.type){
+    case "p": return `<p>${fmt(b.text)}</p>`;
+    case "clause": return `<div class="clause"><span class="ref">條文 ${esc(b.ref||"")}</span> <b>${esc(b.title||"")}</b><div>${fmt(b.text)}</div></div>`;
+    case "list": return `<ul>${(b.items||[]).map(i=>`<li>${fmt(i)}</li>`).join("")}</ul>`;
+    case "olist": return `<ol>${(b.items||[]).map(i=>`<li>${fmt(i)}</li>`).join("")}</ol>`;
+    case "table": return `<div class="tbl"><table><thead><tr>${(b.head||[]).map(h=>`<th>${fmt(h)}</th>`).join("")}</tr></thead><tbody>${(b.rows||[]).map(r=>`<tr>${r.map(c=>`<td>${fmt(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    case "tip": case "auditor": case "warn": case "example": {
+      const icon = {tip:"💡",auditor:"🔍",warn:"⚠️",example:"🏢"}[b.type];
+      const def = {tip:"顧問小叮嚀",auditor:"稽核員視角",warn:"常見誤區",example:"案例"}[b.type];
+      return `<div class="box ${b.type}"><b class="t">${icon} ${esc(b.title||def)}</b>${fmt(b.text)}</div>`;
+    }
+    case "dialog": return `<div class="dlg">${(b.lines||[]).map(l=>{const w=WHO[l.who]||WHO.allan;return `<div class="l ${l.who}"><img src="${w[1]}" alt="${w[0]}"><div class="b"><b>${w[0]}：</b>${fmt(l.text)}</div></div>`}).join("")}</div>`;
+    default: return b.text ? `<p>${fmt(b.text)}</p>` : "";
+  }
+}
+
+function renderQuiz(q, i){
+  return `<div class="q" data-a="${q.answer}"><b>Q${i+1}. ${fmt(q.q)}</b><div class="opts">${q.options.map((o,j)=>`<button data-j="${j}">${String.fromCharCode(65+j)}. ${fmt(o)}</button>`).join("")}</div><div class="ex" hidden>${fmt(q.explain||"")}</div></div>`;
+}
+
+async function show(id){
+  const art = document.getElementById("art");
+  art.innerHTML = '<div class="loading">載入中…</div>';
+  document.querySelectorAll("#chlist a").forEach(a=>a.classList.toggle("on", a.dataset.id===id));
+  let c;
+  try { c = await Course.loadChapter(id); } catch(e){ art.innerHTML = '<div class="loading">章節載入失敗，請重新整理。</div>'; return; }
+  const secs = (c.text && c.text.sections) || [];
+  let html = `<span class="pill">第 ${c.no} 章${(c.clauses||[]).length?"｜條款 "+esc(c.clauses.join("、")):""}｜約 ${c.minutes||"-"} 分鐘</span><h1>${esc(c.title)}</h1>`;
+  if (c.objectives && c.objectives.length) html += `<div class="obj"><b>🎯 學習目標</b><ul>${c.objectives.map(o=>`<li>${fmt(o)}</li>`).join("")}</ul></div>`;
+  html += secs.map((s,i)=>`<h2 id="s${i}"><span class="kind k-${s.kind||"intro"}">${KIND[s.kind]||""}</span>${esc(s.h)}</h2>${(s.blocks||[]).map(renderBlock).join("")}`).join("");
+  if (c.keypoints && c.keypoints.length) html += `<div class="kp"><b>📌 本章重點</b><ul>${c.keypoints.map(k=>`<li>${fmt(k)}</li>`).join("")}</ul></div>`;
+  if (c.selfcheck && c.selfcheck.length) html += `<h2 id="sq"><span class="kind k-summary">自我檢核</span>章末小測驗</h2>${c.selfcheck.map(renderQuiz).join("")}`;
+  const idx = cat.findIndex(x=>x.id===id), prev = cat[idx-1], next = cat[idx+1];
+  html += `<div class="nav2">${prev?`<a class="btn ghost" href="#${prev.id}">← ${esc(prev.short||prev.title)}</a>`:"<span></span>"}<a class="btn ghost" href="video.html#${id}">🎬 看本章影音</a>${next?`<a class="btn" href="#${next.id}">${esc(next.short||next.title)} →</a>`:`<a class="btn accent" href="quiz.html">📝 前往課後測驗</a>`}</div>`;
+  art.innerHTML = html;
+  document.getElementById("toc").innerHTML = "<b style='font-size:13px'>本章段落</b>" + secs.map((s,i)=>`<a href="#s${i}" data-anchor="1">${esc(s.h)}</a>`).join("");
+  document.title = c.title + "｜ISO 27701 文字教材";
+  window.scrollTo(0,0);
+  const p = store.get("progress",{}); p[id] = Object.assign(p[id]||{}, {text:true}); store.set("progress",p);
+  if (matchMedia("(max-width:979px)").matches) document.getElementById("menu").open = false;
+}
+
+document.getElementById("chlist").innerHTML = cat.map(c=>`<a href="#${c.id}" data-id="${c.id}">${c.no}. ${esc(c.short||c.title)}<small>${esc(c.title)}</small></a>`).join("");
+document.addEventListener("click", e=>{
+  const t = e.target.closest("a[data-anchor]");
+  if (t){ e.preventDefault(); const el=document.querySelector(t.getAttribute("href")); if(el) el.scrollIntoView({behavior:"smooth"}); return; }
+  const b = e.target.closest(".q button");
+  if (b){ const q=b.closest(".q"), a=+q.dataset.a, j=+b.dataset.j;
+    q.querySelectorAll("button").forEach((x,k)=>{x.disabled=true; if(k===a) x.classList.add("right");});
+    if (j!==a) b.classList.add("wrong"); q.querySelector(".ex").hidden=false; }
+});
+function route(){ const id = (location.hash||"").slice(1); show(cat.some(c=>c.id===id) ? id : (cat[0]&&cat[0].id)); }
+window.addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
