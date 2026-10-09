@@ -78,7 +78,7 @@ async def tts_all(jobs):
     certifi.where = lambda: os.environ.get("SSL_CERT_FILE", "/root/.ccr/ca-bundle.crt")
     import edge_tts
     proxy = os.environ.get("HTTPS_PROXY")
-    sem = asyncio.Semaphore(6)
+    sem = asyncio.Semaphore(int(os.environ.get("TTS_CONCURRENCY", "12")))
     failed = []
 
     async def one(path, who, text):
