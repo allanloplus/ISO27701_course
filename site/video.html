@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ISO 27701 互動影音</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%232b5bd7'/><path d='M32 12l16 6v12c0 11-7 19-16 22-9-3-16-11-16-22V18z' fill='white'/></svg>">
-<link rel="preload" as="image" href="assets/img/allan.webp">
-<link rel="preload" as="image" href="assets/img/arale.webp">
+<link rel="preload" as="image" href="assets/img/allan_half.webp">
+<link rel="preload" as="image" href="assets/img/arale_half.webp">
 <link rel="stylesheet" href="assets/style.css">
 <style>
 .vlayout{display:grid;gap:14px;max-width:1360px;margin:0 auto;padding:14px 16px}
@@ -27,8 +27,8 @@
 .char{position:absolute;bottom:3%;width:19%;z-index:3;transition:transform .3s,filter .3s,opacity .3s;filter:saturate(.6) brightness(.92);opacity:.85}
 .char img{width:100%;height:auto;border-radius:1.6cqw;background:#fff;border:.45cqw solid #fff;box-shadow:0 .8cqw 2cqw rgba(0,0,0,.3);display:block}
 .char .nm{position:absolute;left:50%;bottom:-.6cqw;transform:translateX(-50%);background:#fff;color:#1c2333;font-weight:800;font-size:1.35cqw;padding:.25cqw 1.2cqw;border-radius:99px;white-space:nowrap;box-shadow:0 .3cqw 1cqw rgba(0,0,0,.2)}
-.char.arale{left:1.2%;width:17%}
-.char.allan{width:17.5%}
+.char.arale{left:1.2%;width:18.5%}
+.char.allan{width:18.5%}
 .char.arale .nm{color:#e8559a}
 .char.allan{right:1.2%}
 .char.allan .nm{color:#2b5bd7}
@@ -44,6 +44,9 @@
 @keyframes wv{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
 .sub{position:absolute;left:21%;right:21%;bottom:4%;min-height:18%;background:rgba(10,18,40,.82);color:#fff;border-radius:1.6cqw;padding:1.2cqw 2cqw;font-size:1.95cqw;line-height:1.5;z-index:4;display:flex;align-items:center}
 .sub b{margin-right:.6cqw;white-space:nowrap}
+.sub .face{width:6.2cqw;height:6.2cqw;border-radius:50%;object-fit:cover;object-position:top;background:#fff;border:.3cqw solid #fff;margin-right:1.2cqw;flex:none;animation:pop .35s ease-out}
+.sub .face.allan{border-color:#ffd27a}.sub .face.arale{border-color:#ffb3d4}
+@keyframes pop{from{transform:scale(.6);opacity:.3}to{transform:none;opacity:1}}
 .sub b.arale{color:#ffb3d4}.sub b.allan{color:#ffd27a}
 .sub.off{display:none}
 /* 覆蓋層 */
@@ -79,7 +82,7 @@
 .trans summary{cursor:pointer;font-weight:700}
 .trans p{margin:.4em 0}
 @media(max-width:640px){.slide{left:3%;right:3%;top:4%;bottom:31%}.slide h2{font-size:4.4cqw}.slide ul{font-size:3.3cqw}.slide .chip{font-size:2.4cqw}.slide .note{display:none}
-  .char{bottom:2%}.char.arale{left:1%;width:17%}.char.allan{right:1%;width:13%}.char .nm{font-size:2.4cqw}
+  .char{bottom:2%}.char.arale{left:1%;width:17%}.char.allan{right:1%;width:16%}.char .nm{font-size:2.4cqw}
   .sub{left:21%;right:22%;font-size:3.1cqw;bottom:3%;min-height:24%}}
 </style>
 </head>
@@ -93,8 +96,8 @@
     </div>
     <div class="stage" id="stage">
       <div class="slide" id="slide"><div class="chip" id="chip"></div><h2 id="stitle"></h2><ul id="sbul"></ul><div class="note" id="snote" hidden></div></div>
-      <div class="char arale" id="c-arale"><div class="wave"><i></i><i></i><i></i></div><img src="assets/img/arale.webp" alt="助教阿拉蕾"><span class="nm">阿拉蕾</span></div>
-      <div class="char allan" id="c-allan"><div class="wave"><i></i><i></i><i></i></div><img src="assets/img/allan.webp" alt="Allan 講師"><span class="nm">Allan 講師</span></div>
+      <div class="char arale" id="c-arale"><div class="wave"><i></i><i></i><i></i></div><img src="assets/img/arale_half.webp" alt="助教阿拉蕾"><span class="nm">阿拉蕾</span></div>
+      <div class="char allan" id="c-allan"><div class="wave"><i></i><i></i><i></i></div><img src="assets/img/allan_half.webp" alt="Allan 講師"><span class="nm">Allan 講師</span></div>
       <div class="sub" id="sub"></div>
       <div class="spin" id="spin" hidden>載入語音…</div>
       <div class="ov" id="ovStart"><div class="bigplay"><button id="bigPlay" aria-label="開始播放">▶</button><h2 id="ovTitle">載入中…</h2><p id="ovInfo"></p></div></div>
@@ -178,7 +181,7 @@ function showLine(i, reveal=true){
   const lis = $("sbul").children, n = lis.length, L = sc.lines.length;
   const showN = reveal ? Math.min(n, Math.ceil((f.li+1)/L*n)) : 0;
   for (let k=0;k<n;k++) lis[k].classList.toggle("in", k<showN || !reveal && false);
-  $("sub").innerHTML = `<b class="${f.ln.who}">${NAME[f.ln.who]}：</b><span>${fmt(f.ln.text)}</span>`;
+  $("sub").innerHTML = `<img class="face ${f.ln.who}" src="assets/img/${f.ln.who}_${f.ln.e || (f.ln.who==="allan"?"smile":"talk")}.webp" alt=""><div><b class="${f.ln.who}">${NAME[f.ln.who]}：</b><span>${fmt(f.ln.text)}</span></div>`;
   $("sub").classList.toggle("off", !subOn);
   $("c-allan").classList.toggle("talk", reveal && f.ln.who==="allan");
   $("c-arale").classList.toggle("talk", reveal && f.ln.who==="arale");
@@ -227,7 +230,11 @@ async function loop(){
   if (playing && idx >= flat.length) finish();
 }
 
-function start(){ if (!ch) return; $("ovStart").hidden = true; $("ovEnd").hidden = true; playing = true; $("bPlay").textContent = "⏸ 暫停"; loop(); }
+let facesWarm = false;
+function warmFaces(){ if (facesWarm) return; facesWarm = true;
+  ["smile","laugh","think","confused","surprised","point","wink","talk"].forEach(e=>{ new Image().src = `assets/img/allan_${e}.webp`; });
+  ["laugh","think","surprised","confused","talk","sad","thumb","excited"].forEach(e=>{ new Image().src = `assets/img/arale_${e}.webp`; }); }
+function start(){ if (!ch) return; warmFaces(); $("ovStart").hidden = true; $("ovEnd").hidden = true; playing = true; $("bPlay").textContent = "⏸ 暫停"; loop(); }
 function pause(){ playing = false; token++; audio.pause(); try{speechSynthesis.cancel()}catch(e){} $("bPlay").textContent = "▶ 播放"; $("c-allan").classList.remove("talk"); $("c-arale").classList.remove("talk"); }
 function stop(){ pause(); }
 function jump(i){ const was = playing || !$("ovStart").hidden; pause(); idx = Math.max(0, Math.min(flat.length-1, i)); $("ovStart").hidden = true; $("ovQuiz").hidden = true; $("ovEnd").hidden = true; showLine(idx); if (was) start(); }

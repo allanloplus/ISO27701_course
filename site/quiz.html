@@ -9,7 +9,8 @@
 <style>
 .qwrap{max-width:860px;margin:0 auto;padding:16px}
 .intro{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.intro img{width:96px;height:112px}
+.intro img{width:104px;height:104px}
+.rimg{float:right;width:110px;height:110px;margin:0 0 8px 12px}
 .qitem{margin:14px 0}
 .qitem h3{font-size:17px;margin:0 0 8px;line-height:1.5}
 .qitem label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:10px;margin:6px 0;cursor:pointer;background:var(--surface)}
@@ -41,7 +42,7 @@ canvas.prev{width:100%;height:auto;border-radius:10px;border:1px solid var(--lin
 <body>
 <main class="qwrap">
   <section class="card intro" id="intro">
-    <img class="avatar" src="assets/img/arale.webp" alt="阿拉蕾">
+    <img class="avatar" src="assets/img/arale_excited.webp" alt="阿拉蕾">
     <div style="flex:1;min-width:240px">
       <h1 style="margin:0 0 6px;font-size:24px">課後測驗</h1>
       <p class="muted" style="margin:0">共 10 題單選題，每題 10 分，<b>80 分（含）以上及格</b>。及格後填寫公司名稱、單位、姓名、職稱與 e-mail，即可下載結業證書，證書附測驗題目與解答。未及格請回去重讀相關章節，或直接再測一次喔！</p>
@@ -114,7 +115,7 @@ $("quiz").addEventListener("submit", e=>{
   const r = $("result"); r.hidden = false;
   if (pass){
     passedAt = new Date();
-    r.innerHTML = `<div class="score pass">${score} 分</div><p><b>恭喜通過！</b>答對 ${right} / 10 題。請在下方填寫資料以產生結業證書。</p>`;
+    r.innerHTML = `<img class="avatar rimg" src="assets/img/arale_thumb.webp" alt="阿拉蕾比讚"><div class="score pass">${score} 分</div><p><b>恭喜通過！</b>答對 ${right} / 10 題。請在下方填寫資料以產生結業證書。</p>`;
     $("quiz").hidden = true; $("info").hidden = false;
     const saved = store.get("certInfo", null);
     if (saved) ["company","unit","name","title","email"].forEach(k=>{ $("f-"+k).value = saved[k]||""; });
@@ -122,7 +123,7 @@ $("quiz").addEventListener("submit", e=>{
   } else {
     const wrongRefs = [...new Set(picks.map((p,i)=>p!==Q.questions[i].answer?Q.questions[i].ref:null).filter(Boolean))];
     const links = wrongRefs.map(id=>{const c=cat.find(x=>x.id===id); return c?`<li><a href="text.html#${id}">📖 ${esc(c.title)}</a>｜<a href="video.html#${id}">🎬 影音</a></li>`:"";}).join("");
-    r.innerHTML = `<div class="score fail">${score} 分</div><p><b>還差一點點！</b>答對 ${right} / 10 題，及格標準為 ${Q.pass} 分。</p>
+    r.innerHTML = `<img class="avatar rimg" src="assets/img/arale_sad.webp" alt="阿拉蕾難過"><div class="score fail">${score} 分</div><p><b>還差一點點！</b>答對 ${right} / 10 題，及格標準為 ${Q.pass} 分。</p>
       <p>阿拉蕾建議先回去複習下列章節，再來挑戰一次：</p><ul>${links}</ul>
       <div class="acts"><button class="btn" id="retry" type="button">↺ 重新測驗</button><a class="btn ghost" href="text.html">📖 重新閱讀教材</a></div>`;
     $("quiz").hidden = true;

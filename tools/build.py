@@ -50,6 +50,39 @@ def speakable(text: str) -> str:
     return t
 
 
+# 依台詞內容挑選表情（對應 site/assets/img/{who}_{表情}.webp）
+EXPR_RULES = {
+    "allan": [
+        ("laugh", r"哈哈|好笑|開玩笑"),
+        ("surprised", r"竟然|嚇|天啊|真的假的"),
+        ("confused", r"頭痛|麻煩|糟糕|慘了|唉"),
+        ("point", r"重點|記得|一定要|注意|關鍵|千萬|不是喔|不行|切記|稽核員一定"),
+        ("wink", r"答對|沒錯|很好|聰明|對啦|就是這樣|好問題"),
+        ("think", r"[？?]|想想|思考|為什麼"),
+    ],
+    "arale": [
+        ("sad", r"嗚|好難|好可怕|慘|糟糕|被開|不符合了"),
+        ("laugh", r"哈哈|嘻嘻|好好笑"),
+        ("surprised", r"哇|天啊|竟然|真的假的|這麼多"),
+        ("confused", r"蛤|什麼意思|怎麼辦|搞不懂|聽不懂|好複雜|欸[？?]"),
+        ("excited", r"加油|好期待|衝|開始吧|出發|太棒|耶"),
+        ("thumb", r"原來如此|懂了|了解|收到|讚|記起來|筆記"),
+        ("think", r"[？?]"),
+    ],
+}
+DEFAULT_EXPR = {"allan": ["smile", "talk"], "arale": ["talk", "laugh"]}
+
+
+def pick_expr(who, text, n):
+    for e, pat in EXPR_RULES[who]:
+        if re.search(pat, text):
+            if who == "arale" and e == "think":  # 問句輪替表情，避免一直同一張
+                return ["think", "talk", "confused"][n % 3]
+            return e
+    d = DEFAULT_EXPR[who]
+    return d[n % len(d)]
+
+
 def audio_name(ch, si, li, who, text):
     h = hashlib.md5((who + "|" + text).encode()).hexdigest()[:6]
     return f"audio/{ch}/{si:02d}-{li:02d}-{h}.mp3"
@@ -113,6 +146,7 @@ def main():
         nlines = 0
         for si, sc in enumerate(c.get("video", {}).get("scenes", []), 1):
             for li, ln in enumerate(sc.get("lines", []), 1):
+                ln["e"] = pick_expr(ln["who"], ln["text"], li)
                 rel = audio_name(cid, si, li, ln["who"], ln["text"])
                 ln["a"] = rel
                 full = os.path.join(SITE, rel)

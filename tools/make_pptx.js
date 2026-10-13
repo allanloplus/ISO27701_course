@@ -5,7 +5,7 @@ const pptxgen = require("pptxgenjs");
 
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "slides", "ISO27701_2025_PIMS_講師簡報.pptx");
-const IMG = { allan: path.join(__dirname, "img", "allan.jpg"), arale: path.join(__dirname, "img", "arale.jpg") };
+const IMG = (who, pose) => path.join(__dirname, "img", `${who}_${pose}.jpg`); // 半身 half 或表情 smile/point/…
 const SKILL_THEME = process.env.APPLY_THEME; // path to apply_theme.js (optional)
 
 const THEME = {
@@ -60,10 +60,10 @@ pres.defineSlideMaster({
 
 const shadow = () => ({ type: "outer", color: "1B2340", opacity: 0.18, blur: 8, offset: 3, angle: 90 });
 
-function portrait(slide, who, x, y, w, name) {
-  const h = who === "allan" ? w * 1.55 : w * 1.33;
+function portrait(slide, who, x, y, w, name, pose = "half") {
+  const h = pose === "half" ? w * 1.15 : w;
   slide.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x - 0.06, y: y - 0.06, w: w + 0.12, h: h + 0.12, rectRadius: 0.18, fill: { color: HEX.lt1 }, line: { color: who === "allan" ? HEX.accent3 : HEX.accent2, width: 3 }, shadow: shadow(), objectName: `${who}-frame` });
-  slide.addImage({ path: IMG[who], x, y, w, h, sizing: { type: "cover", w, h }, altText: who === "allan" ? "Allan 講師" : "助教阿拉蕾", objectName: `${who}-img` });
+  slide.addImage({ path: IMG(who, pose), x, y, w, h, sizing: { type: "cover", w, h }, altText: who === "allan" ? "Allan 講師" : "助教阿拉蕾", objectName: `${who}-img` });
   if (name) slide.addText(name, { x: x - 0.2, y: y + h + 0.12, w: w + 0.4, h: 0.35, align: "center", fontSize: 13, bold: true, color: who === "allan" ? HEX.accent3 : HEX.accent2, isTextBox: true, margin: 0 });
   return h;
 }
@@ -84,8 +84,8 @@ function bubble(slide, text, x, y, w, h, who) {
     { text: "助教：阿拉蕾" },
   ], { x: 0.8, y: 4.4, w: 7.4, h: 0.9, fontSize: 16, color: "CADCFC", isTextBox: true, margin: 0, paraSpaceAfter: 6 });
   s.addText("2025 新版・可獨立驗證的 PIMS 標準", { x: 0.8, y: 5.8, w: 4.6, h: 0.45, fontSize: 14, bold: true, color: HEX.dk2, fill: { color: HEX.accent3 }, align: "center", isTextBox: true, margin: 0, rectRadius: 0.1, shape: pres.shapes.ROUNDED_RECTANGLE });
-  portrait(s, "arale", 8.55, 3.0, 1.9, "助教 阿拉蕾");
-  portrait(s, "allan", 10.75, 1.1, 2.0, "Allan 講師");
+  portrait(s, "arale", 8.3, 3.25, 2.1, "助教 阿拉蕾");
+  portrait(s, "allan", 10.7, 1.0, 2.3, "Allan 講師");
   s.addNotes("開場：歡迎學員，自我介紹（ISMS/PIMS 輔導顧問、驗證機構稽核員，專長資安與企業 MIS 管理）。介紹助教阿拉蕾會在線上影音陪大家學習。說明本課程三大面向：標準詳細解說、PIMS 管理作法、常見稽核實務。提醒學員課後可到線上文字教材與互動影音複習，完成 10 題課後測驗（80 分及格）可下載結業證書。");
 }
 
@@ -137,7 +137,9 @@ for (const { c, m } of plan) {
   const cl = c.clauses || [];
   const sub = [cl.length ? `條款：${cl.length > 6 ? cl.slice(0, 4).join("、") + ` 等 ${cl.length} 項` : cl.join("、")}` : "", `建議時間：約 ${m} 分鐘`].filter(Boolean).join("　｜　");
   d.addText(sub, { placeholder: "body" });
-  portrait(d, k % 2 ? "arale" : "allan", 9.9, 0.9, 2.4, null);
+  const dwho = k % 2 ? "arale" : "allan";
+  const FACES = { allan: ["point", "smile", "wink", "laugh"], arale: ["excited", "thumb", "laugh", "surprised"] };
+  portrait(d, dwho, 9.9, 1.5, 2.4, null, FACES[dwho][c.no % 4]);
   if (c.keypoints && c.keypoints[0]) bubble(d, c.keypoints[0], 8.9, 5.0, 4.0, 1.5, k % 2 ? "arale" : "allan");
   d.addNotes(`【單元 ${c.no}｜${c.title}】\n學習目標：\n` + (c.objectives || []).map((o, i) => `${i + 1}. ${o}`).join("\n") + `\n\n本章重點：\n` + (c.keypoints || []).map((o) => `・${o}`).join("\n"));
 
@@ -185,8 +187,8 @@ pres.addSection({ title: "結語" });
     { text: "未及格：重新閱讀相關章節後再測一次", options: { bullet: true } },
   ], { x: 0.8, y: 2.3, w: 7.6, h: 3.0, fontSize: 18, color: "CADCFC", paraSpaceAfter: 12, isTextBox: true, margin: 0 });
   s.addText("Q & A｜謝謝大家！", { x: 0.8, y: 5.6, w: 7.6, h: 0.8, fontSize: 28, bold: true, color: HEX.accent3, isTextBox: true, margin: 0 });
-  portrait(s, "arale", 8.55, 3.0, 1.9, "助教 阿拉蕾");
-  portrait(s, "allan", 10.75, 1.1, 2.0, "Allan 講師");
+  portrait(s, "arale", 8.3, 3.25, 2.1, "助教 阿拉蕾");
+  portrait(s, "allan", 10.7, 1.0, 2.3, "Allan 講師");
   s.addNotes("總結：請學員回想三大面向（標準解說、PIMS 管理作法、稽核實務），開放 Q&A。提醒學員到線上課程網站完成課後測驗並下載證書。若學員公司正在導入，建議先從個資盤點（RoPA）與角色判定開始。");
 }
 

@@ -51,7 +51,9 @@ node tools/make_pptx.js               # 重建 PPTX 簡報
 ```
 
 - 語音：Allan 使用 `zh-TW-YunJheNeural`（台灣男聲），阿拉蕾使用 `zh-TW-HsiaoYuNeural`（年輕女聲，略提高音調）。語音由 Microsoft Edge 線上神經語音服務產生；若要對外商業販售課程，建議改用 Azure AI Speech 正式授權重新產生（`tools/build.py` 中的 `VOICES` 可調整）。
-- 人物圖：由講師提供的插圖裁切而成（`site/assets/img/`、`tools/img/`）。
+- 人物圖：由講師提供的 Allan 與阿拉蕾角色設定圖裁切（半身圖＋各 8 種表情包）。換圖時執行
+  `python3 tools/make_chars.py <Allan設定圖> <阿拉蕾設定圖>`，再重跑 `tools/build.py` 與 `tools/make_pptx.js`。
+- 互動影音會依台詞內容自動切換表情（提問→思考、重點→舉手指、驚訝→驚訝臉…），規則在 `tools/build.py` 的 `EXPR_RULES`。
 
 ## 注意事項
 
