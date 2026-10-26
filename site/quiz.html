@@ -80,6 +80,7 @@ canvas.prev{width:100%;height:auto;border-radius:10px;border:1px solid var(--lin
   </section>
 </main>
 <div id="printArea"></div>
+<script src="assets/license.js"></script>
 <script src="assets/common.js"></script>
 <script src="data/catalog.js"></script>
 <script src="assets/quiz-data.js"></script>
@@ -171,6 +172,7 @@ function drawCert(info){
   ctx.fillText(`並通過課後測驗（成績 ${score} 分），特頒此證。`, W/2, 900);
   const d = passedAt, ds = `${d.getFullYear()} 年 ${d.getMonth()+1} 月 ${d.getDate()} 日`;
   ctx.textAlign = "left"; ctx.font = `400 30px ${FONT}`; ctx.fillStyle = "#444";
+  if (Course.license) ctx.fillText(`授權單位：${Course.license.company}${Course.license.dept ? " " + Course.license.dept : ""}`, 170, 1060);
   ctx.fillText(`證書編號：${certNo(info)}`, 170, 1110);
   ctx.fillText(`發證日期：${ds}`, 170, 1160);
   ctx.fillText(`E-mail：${info.email}`, 170, 1210);
@@ -213,6 +215,7 @@ function drawAnswers(info){
     y += 26;
   });
   ctx.fillStyle = "#666"; ctx.font = `400 26px ${FONT}`; ctx.textAlign = "center";
+  if (Course.license) { ctx.fillStyle = "#333"; y = wrap(ctx, Course.licenseText(), W/2, y, W - 140, 38) + 10; ctx.fillStyle = "#666"; }
   ctx.fillText("教材規劃製作：Allan Lo顧問（http://www.123hi.org）2026年10月", W/2, y + 30);
   ctx.fillText("Copyright © 2026 Allan Lo. All rights reserved.", W/2, y + 70);
   y += 90;
@@ -239,5 +242,11 @@ $("mkCert").onclick = async ()=>{
 };
 build();
 </script>
+<div id="unzip-hint" style="display:none;margin:40px auto;max-width:720px;padding:24px 28px;border:3px solid #c8323c;border-radius:14px;background:#fff4f4;color:#1b2430;font:18px/1.8 'Microsoft JhengHei','PingFang TC',sans-serif">
+  <b style="font-size:22px;color:#c8323c">⚠ 請先將壓縮檔「全部解壓縮」再開啟</b><br>
+  目前網頁是直接從 zip 壓縮檔中開啟，樣式、圖片與程式檔沒有一起解出來，所以無法正常顯示。<br>
+  請在 zip 檔上按右鍵 →「<b>全部解壓縮…</b>」，再到解壓縮後的資料夾中開啟 <b>index.html</b>。
+</div>
+<script>if (!window.Course) { var h = document.getElementById('unzip-hint'); h.style.display = 'block'; document.body.insertBefore(h, document.body.firstChild); }</script>
 </body>
 </html>

@@ -38,6 +38,7 @@
     <div>
       <span class="pill">2025 新版・可獨立驗證的 PIMS 標準</span>
       <h1><span>ISO/IEC 27701:2025</span><br>隱私資訊管理系統完整課程</h1>
+      <div class="lic-hero" data-lic-company hidden></div>
       <p class="muted">從條文解說、PIMS 管理作法到驗證稽核實務，一次搞懂。實體課的同學可以拿來複習、補充；沒上實體課的同學，也能在這裡完整學習。</p>
       <div class="pillars"><span class="p1">① 標準詳細解說</span><span class="p2">② PIMS 管理作法</span><span class="p3">③ 常見稽核實務</span></div>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -63,6 +64,7 @@
   <section class="card" id="chapters"></section>
 </main>
 <footer class="foot" style="padding-bottom:0">講師：Allan｜助教：阿拉蕾｜本課程依 ISO/IEC 27701:2025 編製，條文以英文原文為唯一詮釋依據。</footer>
+<script src="assets/license.js"></script>
 <script src="assets/common.js"></script>
 <script src="data/catalog.js"></script>
 <script>
@@ -81,5 +83,11 @@ document.getElementById("chapters").innerHTML = cat.map(c => {
 }).join("");
 document.getElementById("sum").textContent = `共 ${cat.length} 個單元，文字教材約 ${Math.round(mins/6)/10} 小時${secs ? "，互動影音約 " + Math.round(secs/360)/10 + " 小時" : ""}。可依需要自由選擇章節。`;
 </script>
+<div id="unzip-hint" style="display:none;margin:40px auto;max-width:720px;padding:24px 28px;border:3px solid #c8323c;border-radius:14px;background:#fff4f4;color:#1b2430;font:18px/1.8 'Microsoft JhengHei','PingFang TC',sans-serif">
+  <b style="font-size:22px;color:#c8323c">⚠ 請先將壓縮檔「全部解壓縮」再開啟</b><br>
+  目前網頁是直接從 zip 壓縮檔中開啟，樣式、圖片與程式檔沒有一起解出來，所以無法正常顯示。<br>
+  請在 zip 檔上按右鍵 →「<b>全部解壓縮…</b>」，再到解壓縮後的資料夾中開啟 <b>index.html</b>。
+</div>
+<script>if (!window.Course) { var h = document.getElementById('unzip-hint'); h.style.display = 'block'; document.body.insertBefore(h, document.body.firstChild); }</script>
 </body>
 </html>
