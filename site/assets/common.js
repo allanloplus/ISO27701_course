@@ -42,7 +42,7 @@
   function footer() {
     const f = document.createElement("footer");
     f.className = "foot credit";
-    f.innerHTML = '教材規劃製作：Allan Lo顧問（<a href="http://www.123hi.org" target="_blank" rel="noopener">http://www.123hi.org</a>）<br>Copyright © 2027 Allan Lo. All rights reserved.';
+    f.innerHTML = '教材規劃製作：Allan Lo顧問（<a href="http://www.123hi.org" target="_blank" rel="noopener">http://www.123hi.org</a>）｜2026年10月<br>Copyright © 2026 Allan Lo. All rights reserved.';
     document.body.appendChild(f);
   }
 

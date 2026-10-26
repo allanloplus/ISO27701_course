@@ -186,7 +186,7 @@ function drawCert(info){
   ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0,0,88,0,Math.PI*2); ctx.stroke();
   ctx.fillStyle = "rgba(200,30,30,.85)"; ctx.font = `900 40px ${FONT}`; ctx.fillText("PIMS", 0, -8); ctx.font = `700 30px ${FONT}`; ctx.fillText("測驗通過", 0, 38);
   ctx.restore();
-  ctx.fillStyle = "#666"; ctx.font = `400 22px ${FONT}`; ctx.fillText("教材規劃製作：Allan Lo顧問（http://www.123hi.org）｜Copyright © 2027 Allan Lo. All rights reserved.", W/2, H-140);
+  ctx.fillStyle = "#666"; ctx.font = `400 22px ${FONT}`; ctx.fillText("教材規劃製作：Allan Lo顧問（http://www.123hi.org）2026年10月｜Copyright © 2026 Allan Lo. All rights reserved.", W/2, H-140);
   ctx.fillStyle = "#888"; ctx.fillText("本證書證明完成本線上課程及測驗，非 ISO/IEC 27701 驗證證書。", W/2, H-105);
 }
 function drawAnswers(info){
@@ -213,8 +213,8 @@ function drawAnswers(info){
     y += 26;
   });
   ctx.fillStyle = "#666"; ctx.font = `400 26px ${FONT}`; ctx.textAlign = "center";
-  ctx.fillText("教材規劃製作：Allan Lo顧問（http://www.123hi.org）", W/2, y + 30);
-  ctx.fillText("Copyright © 2027 Allan Lo. All rights reserved.", W/2, y + 70);
+  ctx.fillText("教材規劃製作：Allan Lo顧問（http://www.123hi.org）2026年10月", W/2, y + 30);
+  ctx.fillText("Copyright © 2026 Allan Lo. All rights reserved.", W/2, y + 70);
   y += 90;
   const img = ctx.getImageData(0,0,W,y+40);
   cv.height = y + 40; ctx.putImageData(img,0,0);

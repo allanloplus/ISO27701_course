@@ -2,8 +2,8 @@
 
 講師：**Allan**（ISMS／PIMS 輔導顧問、驗證機構稽核員）｜助教：**阿拉蕾**
 
-教材規劃製作：Allan Lo顧問 (http://www.123hi.org)  
-Copyright © 2027 Allan Lo. All rights reserved.
+教材規劃製作：Allan Lo顧問 (http://www.123hi.org)，2026年10月  
+Copyright © 2026 Allan Lo. All rights reserved.
 
 依據 ISO/IEC 27701:2025（2025-10 發行）製作的完整課程，涵蓋三大面向：
 
