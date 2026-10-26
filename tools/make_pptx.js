@@ -28,7 +28,8 @@ const chapters = fs.readdirSync(path.join(ROOT, "content", "chapters"))
 const pres = new pptxgen();
 pres.layout = "LAYOUT_WIDE"; // 13.33 x 7.5
 pres.title = "ISO/IEC 27701:2025 隱私資訊管理系統（PIMS）";
-pres.author = "Allan";
+pres.author = "Allan Lo";
+pres.company = "Allan Lo";
 pres.subject = "ISO/IEC 27701:2025 標準解說、PIMS 管理作法與稽核實務";
 pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
 const C = pres.SchemeColor;
@@ -53,7 +54,7 @@ pres.defineSlideMaster({
   margin: [0.5, 0.6, 0.6, 0.6],
   objects: [
     { placeholder: { options: { name: "title", type: "title", x: 0.6, y: 0.35, w: 12.1, h: 0.9, fontSize: 30, bold: true, color: C.text2, valign: "middle", align: "left", margin: 0 }, text: "" } },
-    { text: { text: "ISO/IEC 27701:2025 PIMS｜講師 Allan", options: { x: 0.6, y: 7.0, w: 6, h: 0.3, fontSize: 10, color: HEX.accent5, margin: 0 } } },
+    { text: { text: "ISO/IEC 27701:2025 PIMS｜教材規劃製作：Allan Lo顧問 (http://www.123hi.org)｜Copyright © 2027 Allan Lo. All rights reserved.", options: { x: 0.6, y: 7.0, w: 11.4, h: 0.3, fontSize: 10, color: HEX.accent5, margin: 0 } } },
   ],
   slideNumber: { x: 12.2, y: 7.0, w: 0.6, h: 0.3, fontSize: 10, color: HEX.accent5, align: "right" },
 });
@@ -86,6 +87,12 @@ function bubble(slide, text, x, y, w, h, who) {
   s.addText("2025 新版・可獨立驗證的 PIMS 標準", { x: 0.8, y: 5.8, w: 4.6, h: 0.45, fontSize: 14, bold: true, color: HEX.dk2, fill: { color: HEX.accent3 }, align: "center", isTextBox: true, margin: 0, rectRadius: 0.1, shape: pres.shapes.ROUNDED_RECTANGLE });
   portrait(s, "arale", 8.3, 3.25, 2.1, "助教 阿拉蕾");
   portrait(s, "allan", 10.7, 1.0, 2.3, "Allan 講師");
+  s.addText([
+    { text: "教材規劃製作：Allan Lo顧問 (", options: {} },
+    { text: "http://www.123hi.org", options: { hyperlink: { url: "http://www.123hi.org" }, color: "CADCFC" } },
+    { text: ")", options: { breakLine: true } },
+    { text: "Copyright © 2027 Allan Lo. All rights reserved." },
+  ], { x: 0.8, y: 6.55, w: 7.4, h: 0.6, fontSize: 11, color: "CADCFC", isTextBox: true, margin: 0 });
   s.addNotes("開場：歡迎學員，自我介紹（ISMS/PIMS 輔導顧問、驗證機構稽核員，專長資安與企業 MIS 管理）。介紹助教阿拉蕾會在線上影音陪大家學習。說明本課程三大面向：標準詳細解說、PIMS 管理作法、常見稽核實務。提醒學員課後可到線上文字教材與互動影音複習，完成 10 題課後測驗（80 分及格）可下載結業證書。");
 }
 
@@ -189,6 +196,12 @@ pres.addSection({ title: "結語" });
   s.addText("Q & A｜謝謝大家！", { x: 0.8, y: 5.6, w: 7.6, h: 0.8, fontSize: 28, bold: true, color: HEX.accent3, isTextBox: true, margin: 0 });
   portrait(s, "arale", 8.3, 3.25, 2.1, "助教 阿拉蕾");
   portrait(s, "allan", 10.7, 1.0, 2.3, "Allan 講師");
+  s.addText([
+    { text: "教材規劃製作：Allan Lo顧問 (", options: {} },
+    { text: "http://www.123hi.org", options: { hyperlink: { url: "http://www.123hi.org" }, color: "CADCFC" } },
+    { text: ")", options: { breakLine: true } },
+    { text: "Copyright © 2027 Allan Lo. All rights reserved." },
+  ], { x: 0.8, y: 6.55, w: 7.4, h: 0.6, fontSize: 11, color: "CADCFC", isTextBox: true, margin: 0 });
   s.addNotes("總結：請學員回想三大面向（標準解說、PIMS 管理作法、稽核實務），開放 Q&A。提醒學員到線上課程網站完成課後測驗並下載證書。若學員公司正在導入，建議先從個資盤點（RoPA）與角色判定開始。");
 }
 

@@ -35,6 +35,15 @@
     el.innerHTML = '<a class="logo" href="index.html"><b>ISO/IEC 27701</b>:2025 PIMS 線上課程</a><nav>' +
       links.map(([h, t, k]) => `<a href="${h}" class="${k === active ? "on" : ""}">${t}</a>`).join("") + "</nav>";
     document.body.prepend(el);
+    footer();
+  }
+
+  // 版權與製作資訊（所有頁面共用）
+  function footer() {
+    const f = document.createElement("footer");
+    f.className = "foot credit";
+    f.innerHTML = '教材規劃製作：Allan Lo顧問（<a href="http://www.123hi.org" target="_blank" rel="noopener">http://www.123hi.org</a>）<br>Copyright © 2027 Allan Lo. All rights reserved.';
+    document.body.appendChild(f);
   }
 
   window.Course = { store, loadChapter, esc, fmt, topbar };
