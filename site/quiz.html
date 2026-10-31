@@ -93,6 +93,7 @@ const $ = id => document.getElementById(id);
 let order = [], picks = [], score = 0, passedAt = null;
 const allan = new Image(); allan.src = window.AVATAR.allan;
 const arale = new Image(); arale.src = window.AVATAR.arale;
+const sig = new Image(); sig.src = window.AVATAR.signature;
 
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
 
@@ -178,10 +179,13 @@ function drawCert(info){
   ctx.fillText(`E-mail：${info.email}`, 170, 1210);
   // 講師與助教
   const cover = (im, x, y, w, h) => { const r = Math.min(im.width / w, im.height / h), sw = w * r, sh = h * r; ctx.drawImage(im, (im.width - sw) / 2, 0, sw, sh, x, y, w, h); };
-  try { cover(arale, W-690, 1000, 150, 180); cover(allan, W-520, 960, 190, 226); } catch(e){}
-  ctx.strokeStyle = "#1d3b8f"; ctx.lineWidth = 3; ctx.strokeRect(W-690,1000,150,180); ctx.strokeRect(W-520,960,190,226);
-  ctx.textAlign = "center"; ctx.fillStyle = "#1d3b8f"; ctx.font = `800 40px ${FONT}`; ctx.fillText("Allan", W-215, 1090);
-  ctx.font = `400 28px ${FONT}`; ctx.fillStyle = "#555"; ctx.fillText("課程講師", W-215, 1135); ctx.fillText("助教 阿拉蕾", W-215, 1175);
+  try { cover(arale, W-760, 1000, 150, 180); cover(allan, W-590, 960, 190, 226); } catch(e){}
+  ctx.strokeStyle = "#1d3b8f"; ctx.lineWidth = 3; ctx.strokeRect(W-760,1000,150,180); ctx.strokeRect(W-590,960,190,226);
+  // 講師簽名
+  try { const sw = 250, sh = sw * sig.height / sig.width; ctx.drawImage(sig, W-215-sw/2, 1055-sh, sw, sh); } catch(e){}
+  ctx.strokeStyle = "#999"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(W-345,1062); ctx.lineTo(W-85,1062); ctx.stroke();
+  ctx.textAlign = "center"; ctx.fillStyle = "#1d3b8f"; ctx.font = `800 34px ${FONT}`; ctx.fillText("Allan Lo", W-215, 1102);
+  ctx.font = `400 26px ${FONT}`; ctx.fillStyle = "#555"; ctx.fillText("課程講師", W-215, 1142); ctx.fillText("助教 阿拉蕾", W-215, 1178);
   // 印章
   ctx.save(); ctx.translate(W/2, 1120); ctx.rotate(-0.12);
   ctx.strokeStyle = "rgba(200,30,30,.8)"; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(0,0,105,0,Math.PI*2); ctx.stroke();
@@ -232,7 +236,7 @@ $("mkCert").onclick = async ()=>{
   $("ferr").textContent = bad; if (bad) return;
   store.set("certInfo", info);
   try { await document.fonts.ready; } catch(e){}
-  await Promise.all([allan, arale].map(im => im.complete ? 0 : new Promise(r=>{im.onload=im.onerror=r;})));
+  await Promise.all([allan, arale, sig].map(im => im.complete ? 0 : new Promise(r=>{im.onload=im.onerror=r;})));
   drawCert(info); drawAnswers(info);
   $("cert").hidden = false; $("cert").scrollIntoView({behavior:"smooth"});
   const base = `ISO27701_${info.name}`;
